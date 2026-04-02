@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portals - The Vibe Metaverse Portal Network</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #0a0a1a; font-family: 'Courier New', monospace; }
+    canvas { display: block; }
+
+    #hud {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #7fdbff;
+      font-size: 14px;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(127,219,255,0.3);
+      pointer-events: none;
+    }
+
+    .panel {
+      position: absolute;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s;
+    }
+
+    #panel-title {
+      color: #fff;
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(127,219,255,0.8), 0 0 40px rgba(127,219,255,0.4);
+      letter-spacing: 2px;
+    }
+    #panel-title .sub {
+      font-size: 14px;
+      color: #7fdbff;
+      font-weight: normal;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    #panel-snippet {
+      background: rgba(10,10,30,0.92);
+      border: 1px solid rgba(127,219,255,0.4);
+      border-radius: 8px;
+      padding: 20px 24px;
+      max-width: 480px;
+      box-shadow: 0 0 30px rgba(127,219,255,0.15);
+    }
+    #panel-snippet h3 {
+      color: #7fdbff;
+      font-size: 15px;
+      margin-bottom: 12px;
+      font-weight: normal;
+      letter-spacing: 1px;
+    }
+    #panel-snippet pre {
+      color: #e0e0e0;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre;
+      overflow: visible;
+    }
+    #panel-snippet .kw { color: #c792ea; }
+    #panel-snippet .str { color: #c3e88d; }
+    #panel-snippet .fn { color: #82aaff; }
+    #panel-snippet .cm { color: #546e7a; }
+    #panel-snippet .tag { color: #f07178; }
+    #panel-snippet .attr { color: #ffcb6b; }
+
+    #panel-pr {
+      background: rgba(10,10,30,0.92);
+      border: 1px solid rgba(200,130,255,0.4);
+      border-radius: 8px;
+      padding: 20px 24px;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(200,130,255,0.15);
+    }
+    #panel-pr h3 {
+      color: #c792ea;
+      font-size: 15px;
+      margin-bottom: 12px;
+      font-weight: normal;
+      letter-spacing: 1px;
+    }
+    #panel-pr .step {
+      color: #e0e0e0;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 4px;
+    }
+    #panel-pr .num { color: #c792ea; font-weight: bold; }
+    #panel-pr .file { color: #c3e88d; }
+    #panel-pr pre {
+      color: #e0e0e0;
+      font-size: 11px;
+      line-height: 1.5;
+      background: rgba(0,0,0,0.4);
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    #portal-prompt {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 18px;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(127,219,255,0.8);
+      background: rgba(0,0,0,0.7);
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 1px solid rgba(127,219,255,0.5);
+      display: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">Arrow keys to move | Walk into the portal</div>
+
+  <div id="panel-title" class="panel">
+    THE VIBE METAVERSE<br>PORTAL NETWORK
+    <div class="sub">Add a portal to your game. Join the network.</div>
+  </div>
+
+  <div id="panel-snippet" class="panel">
+    <h3>// ADD A PORTAL TO YOUR GAME</h3>
+    <pre><span class="cm">&lt;!-- 1. Add the script --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://YOURDOMAIN/portals.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="tag">&lt;script&gt;</span>
+  <span class="cm">// 2. Load all portals in the network</span>
+  <span class="kw">const</span> portals = <span class="kw">await</span> <span class="fn">Portals.load</span>();
+
+  <span class="cm">// 3. When a player enters a portal</span>
+  <span class="fn">Portals.enter</span>(<span class="str">"game-slug"</span>, {
+    <span class="attr">username</span>: <span class="str">"player1"</span>,
+    <span class="attr">avatar_url</span>: <span class="str">"https://..."</span>
+  });
+
+  <span class="cm">// 4. Let players go back where they came from</span>
+  <span class="kw">if</span> (<span class="fn">Portals.ref</span>()) <span class="fn">Portals.back</span>();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <div id="panel-pr" class="panel">
+    <h3>// SUBMIT YOUR PORTAL</h3>
+    <div class="step"><span class="num">1.</span> Fork the repo</div>
+    <div class="step"><span class="num">2.</span> Copy <span class="file">PORTALS/__TEMPLATE__.json</span></div>
+    <div class="step"><span class="num">3.</span> Rename to <span class="file">your-game.json</span></div>
+    <div class="step"><span class="num">4.</span> Fill in your details:</div>
+    <pre>{
+  "url": "https://yourgame.com",
+  "title": "Your Game",
+  "description": "A cool game.",
+  "portalImageUrl": "https://..."
+}</pre>
+    <div class="step"><span class="num">5.</span> Submit a pull request</div>
+    <div class="step" style="color:#7fdbff; margin-top:8px;">Your portal appears in every game on the network.</div>
+  </div>
+
+  <div id="portal-prompt">Entering the Vibe Metaverse...</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const ROOM_W = 14, ROOM_H = 6, ROOM_D = 14;
+
+    let scene, camera, renderer, controls;
+    let player, portalGroup;
+    let navigating = false;
+
+    const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
+    const SPEED = 0.08;
+
+    function init() {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      document.body.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0a1a);
+      scene.fog = new THREE.FogExp2(0x0a0a1a, 0.04);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 5, 8);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.maxPolarAngle = Math.PI / 2.1;
+      controls.minDistance = 3;
+      controls.maxDistance = 15;
+      controls.target.set(0, 1.5, 0);
+
+      buildRoom();
+      buildPortal();
+      buildPlayer();
+      setupLighting();
+
+      window.addEventListener('keydown', e => { if (e.code in keys) keys[e.code] = true; });
+      window.addEventListener('keyup', e => { if (e.code in keys) keys[e.code] = false; });
+      window.addEventListener('resize', onResize);
+
+      animate();
+    }
+
+    function buildRoom() {
+      // Floor — dark reflective
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x111122,
+        roughness: 0.3,
+        metalness: 0.6,
+      });
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      // Grid lines on floor
+      const gridHelper = new THREE.GridHelper(ROOM_W, 14, 0x1a1a3a, 0x1a1a3a);
+      gridHelper.position.y = 0.01;
+      scene.add(gridHelper);
+
+      // Walls
+      const wallMat = new THREE.MeshStandardMaterial({
+        color: 0x0d0d22,
+        roughness: 0.8,
+        metalness: 0.2,
+      });
+
+      // Back wall
+      const backWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+      backWall.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+      backWall.receiveShadow = true;
+      scene.add(backWall);
+
+      // Left wall
+      const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+      leftWall.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+      leftWall.rotation.y = Math.PI / 2;
+      leftWall.receiveShadow = true;
+      scene.add(leftWall);
+
+      // Right wall
+      const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+      rightWall.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+      rightWall.rotation.y = -Math.PI / 2;
+      rightWall.receiveShadow = true;
+      scene.add(rightWall);
+
+      // Front wall (behind camera, partial)
+      const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+      frontWall.position.set(0, ROOM_H / 2, ROOM_D / 2);
+      frontWall.rotation.y = Math.PI;
+      scene.add(frontWall);
+
+      // Ceiling
+      const ceilMat = new THREE.MeshStandardMaterial({ color: 0x080818, roughness: 0.9 });
+      const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilMat);
+      ceiling.rotation.x = Math.PI / 2;
+      ceiling.position.y = ROOM_H;
+      scene.add(ceiling);
+
+      // Neon edge strips along floor-wall boundaries
+      const neonMat = new THREE.MeshBasicMaterial({ color: 0x7fdbff });
+      const stripGeo = new THREE.BoxGeometry(ROOM_W, 0.02, 0.04);
+      const backStrip = new THREE.Mesh(stripGeo, neonMat);
+      backStrip.position.set(0, 0.01, -ROOM_D / 2 + 0.02);
+      scene.add(backStrip);
+
+      const sideStripGeo = new THREE.BoxGeometry(0.04, 0.02, ROOM_D);
+      const leftStrip = new THREE.Mesh(sideStripGeo, neonMat);
+      leftStrip.position.set(-ROOM_W / 2 + 0.02, 0.01, 0);
+      scene.add(leftStrip);
+      const rightStrip = new THREE.Mesh(sideStripGeo, neonMat);
+      rightStrip.position.set(ROOM_W / 2 - 0.02, 0.01, 0);
+      scene.add(rightStrip);
+
+      // Purple neon strip on left wall (vertical accent)
+      const purpleNeon = new THREE.MeshBasicMaterial({ color: 0xc792ea });
+      const vStripGeo = new THREE.BoxGeometry(0.03, ROOM_H, 0.03);
+      const lAccent = new THREE.Mesh(vStripGeo, purpleNeon);
+      lAccent.position.set(-ROOM_W / 2 + 0.02, ROOM_H / 2, -2);
+      scene.add(lAccent);
+      const rAccent = new THREE.Mesh(vStripGeo, purpleNeon);
+      rAccent.position.set(ROOM_W / 2 - 0.02, ROOM_H / 2, -2);
+      scene.add(rAccent);
+    }
+
+    function buildPortal() {
+      portalGroup = new THREE.Group();
+      portalGroup.position.set(0, 0, -ROOM_D / 2 + 0.5);
+      scene.add(portalGroup);
+
+      // Portal frame — arch shape using a torus
+      const frameMat = new THREE.MeshStandardMaterial({
+        color: 0x333355,
+        roughness: 0.4,
+        metalness: 0.8,
+      });
+
+      // Two vertical pillars
+      const pillarGeo = new THREE.BoxGeometry(0.3, 3.5, 0.3);
+      const leftPillar = new THREE.Mesh(pillarGeo, frameMat);
+      leftPillar.position.set(-1.5, 1.75, 0);
+      leftPillar.castShadow = true;
+      portalGroup.add(leftPillar);
+
+      const rightPillar = new THREE.Mesh(pillarGeo, frameMat);
+      rightPillar.position.set(1.5, 1.75, 0);
+      rightPillar.castShadow = true;
+      portalGroup.add(rightPillar);
+
+      // Arch top
+      const archGeo = new THREE.TorusGeometry(1.5, 0.15, 8, 32, Math.PI);
+      const arch = new THREE.Mesh(archGeo, frameMat);
+      arch.position.set(0, 3.5, 0);
+      arch.rotation.z = Math.PI;
+      arch.castShadow = true;
+      portalGroup.add(arch);
+
+      // Portal surface — glowing plane
+      const portalGeo = new THREE.PlaneGeometry(2.8, 3.4);
+      const portalMat = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          color1: { value: new THREE.Color(0x7fdbff) },
+          color2: { value: new THREE.Color(0xc792ea) },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float time;
+          uniform vec3 color1;
+          uniform vec3 color2;
+          varying vec2 vUv;
+
+          void main() {
+            vec2 center = vUv - 0.5;
+            float dist = length(center);
+            float angle = atan(center.y, center.x);
+
+            float swirl = sin(angle * 3.0 + dist * 8.0 - time * 2.0) * 0.5 + 0.5;
+            float pulse = sin(time * 1.5) * 0.15 + 0.85;
+            float ring = sin(dist * 12.0 - time * 3.0) * 0.5 + 0.5;
+
+            vec3 col = mix(color1, color2, swirl * ring);
+            float alpha = smoothstep(0.55, 0.3, dist) * pulse;
+
+            gl_FragColor = vec4(col * 1.5, alpha);
+          }
+        `,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const portalSurface = new THREE.Mesh(portalGeo, portalMat);
+      portalSurface.position.set(0, 1.8, 0.05);
+      portalGroup.add(portalSurface);
+
+      // Glow light from portal
+      const portalLight = new THREE.PointLight(0x7fdbff, 2, 8);
+      portalLight.position.set(0, 2, 1);
+      portalGroup.add(portalLight);
+
+      const portalLight2 = new THREE.PointLight(0xc792ea, 1, 6);
+      portalLight2.position.set(0, 1, 1.5);
+      portalGroup.add(portalLight2);
+    }
+
+    function buildPlayer() {
+      // Simple glowing cube
+      const geo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x7fdbff,
+        emissive: 0x7fdbff,
+        emissiveIntensity: 0.3,
+        roughness: 0.3,
+        metalness: 0.7,
+      });
+      player = new THREE.Mesh(geo, mat);
+      player.position.set(0, 0.2, 3);
+      player.castShadow = true;
+      scene.add(player);
+
+      // Small light under player
+      const pLight = new THREE.PointLight(0x7fdbff, 0.5, 2);
+      pLight.position.set(0, 0, 0);
+      player.add(pLight);
+    }
+
+    function setupLighting() {
+      const ambient = new THREE.AmbientLight(0x1a1a3a, 0.8);
+      scene.add(ambient);
+
+      // Overhead spot
+      const overhead = new THREE.SpotLight(0x334466, 1.5, 20, Math.PI / 4, 0.5);
+      overhead.position.set(0, ROOM_H - 0.5, 0);
+      overhead.target.position.set(0, 0, -2);
+      overhead.castShadow = true;
+      overhead.shadow.mapSize.width = 1024;
+      overhead.shadow.mapSize.height = 1024;
+      scene.add(overhead);
+      scene.add(overhead.target);
+    }
+
+    function updatePanelPositions() {
+      const panels = [
+        { el: document.getElementById('panel-title'), pos: new THREE.Vector3(0, 4.8, -ROOM_D / 2 + 0.6) },
+        { el: document.getElementById('panel-snippet'), pos: new THREE.Vector3(-ROOM_W / 2 + 0.6, 3, -1) },
+        { el: document.getElementById('panel-pr'), pos: new THREE.Vector3(ROOM_W / 2 - 0.6, 3, -1) },
+      ];
+
+      for (const p of panels) {
+        const v = p.pos.clone().project(camera);
+        const behindCamera = v.z > 1;
+        if (behindCamera) {
+          p.el.style.opacity = '0';
+          continue;
+        }
+        const x = (v.x * 0.5 + 0.5) * window.innerWidth;
+        const y = (-v.y * 0.5 + 0.5) * window.innerHeight;
+        p.el.style.left = x + 'px';
+        p.el.style.top = y + 'px';
+        p.el.style.opacity = '1';
+      }
+    }
+
+    function checkPortal() {
+      if (navigating || !player) return;
+      const dz = player.position.z - portalGroup.position.z;
+      const dx = Math.abs(player.position.x - portalGroup.position.x);
+      if (dz < 2.5 && dx < 2) {
+        navigating = true;
+        document.getElementById('portal-prompt').style.display = 'block';
+        setTimeout(() => {
+          window.location.href = 'https://thevibemetaverse.com';
+        }, 800);
+      }
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      // Update portal shader
+      if (portalGroup) {
+        const portalSurface = portalGroup.children.find(c => c.material && c.material.uniforms);
+        if (portalSurface) portalSurface.material.uniforms.time.value = elapsed;
+      }
+
+      // Move player
+      if (player && !navigating) {
+        if (keys.ArrowLeft) player.position.x -= SPEED;
+        if (keys.ArrowRight) player.position.x += SPEED;
+        if (keys.ArrowUp) player.position.z -= SPEED;
+        if (keys.ArrowDown) player.position.z += SPEED;
+
+        const hw = ROOM_W / 2 - 0.3;
+        const hd = ROOM_D / 2 - 0.3;
+        player.position.x = Math.max(-hw, Math.min(hw, player.position.x));
+        player.position.z = Math.max(-hd, Math.min(hd, player.position.z));
+
+        // Gentle rotation
+        player.rotation.y += 0.01;
+
+        // Update camera target to loosely follow player
+        controls.target.lerp(
+          new THREE.Vector3(player.position.x * 0.3, 1.5, player.position.z * 0.3),
+          0.05
+        );
+      }
+
+      checkPortal();
+      updatePanelPositions();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>
