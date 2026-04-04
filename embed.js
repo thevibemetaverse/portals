@@ -93,8 +93,8 @@ export function createVibePortal(opts) {
     try {
       const portals = await loadPortals();
       const portal = portals.find(function (p) { return p.slug === game; });
-      // TODO: change this to the production URL
-      const destUrl = portal ? portal.url : 'https://thevibemetaverse-v2-production.up.railway.app';
+      // Hub first; the hub scene then links to the metaverse (see portals/index.html).
+      const destUrl = portal ? portal.url : 'https://portals-production-ee2d.up.railway.app';
 
       const url = new URL(destUrl);
       url.searchParams.set('portal', 'true');
