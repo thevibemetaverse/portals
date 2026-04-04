@@ -28,6 +28,7 @@
       pointer-events: none;
       transform: translate(-50%, -50%);
       transition: opacity 0.3s;
+      z-index: 10;
     }
 
     #panel-title {
@@ -67,13 +68,42 @@
       padding: 20px 24px;
       max-width: 560px;
       box-shadow: 0 0 30px rgba(127,219,255,0.15);
+      pointer-events: auto;
+    }
+    #panel-snippet .snippet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
     }
     #panel-snippet h3 {
       color: #7fdbff;
       font-size: 15px;
-      margin-bottom: 12px;
+      margin-bottom: 0;
       font-weight: normal;
       letter-spacing: 1px;
+    }
+    #panel-snippet .copy-btn {
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      color: #0a0a1a;
+      background: #7fdbff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+      pointer-events: auto;
+      flex-shrink: 0;
+    }
+    #panel-snippet .copy-btn:hover {
+      background: #a8ecff;
+    }
+    #panel-snippet .copy-btn.copied {
+      background: #c3e88d;
+      color: #0a0a1a;
     }
     #panel-snippet pre {
       color: #e0e0e0;
@@ -93,33 +123,16 @@
       background: rgba(10,10,30,0.92);
       border: 1px solid rgba(200,130,255,0.4);
       border-radius: 8px;
-      padding: 20px 24px;
-      max-width: 520px;
+      padding: 18px 22px;
+      max-width: 320px;
       box-shadow: 0 0 30px rgba(200,130,255,0.15);
     }
-    #panel-pr h3 {
-      color: #c792ea;
-      font-size: 15px;
-      margin-bottom: 12px;
+    #panel-pr p {
+      color: #e0e0e0;
+      font-size: 14px;
+      line-height: 1.55;
       font-weight: normal;
-      letter-spacing: 1px;
-    }
-    #panel-pr .step {
-      color: #e0e0e0;
-      font-size: 13px;
-      line-height: 1.8;
-      margin-bottom: 4px;
-    }
-    #panel-pr .num { color: #c792ea; font-weight: bold; }
-    #panel-pr .file { color: #c3e88d; }
-    #panel-pr pre {
-      color: #e0e0e0;
-      font-size: 11px;
-      line-height: 1.5;
-      background: rgba(0,0,0,0.4);
-      padding: 10px;
-      border-radius: 4px;
-      margin-top: 8px;
+      letter-spacing: 0.3px;
     }
 
     #portal-prompt {
@@ -152,8 +165,11 @@
   </div>
 
   <div id="panel-snippet" class="panel">
-    <h3>// ADD A PORTAL TO YOUR GAME</h3>
-    <pre><span class="kw">import</span> { <span class="fn">createVibePortal</span> } <span class="kw">from</span>
+    <div class="snippet-header">
+      <h3>// ADD A PORTAL TO YOUR GAME</h3>
+      <button type="button" class="copy-btn" id="copy-portal-snippet" aria-label="Copy code to add a portal">Copy</button>
+    </div>
+    <pre id="portal-snippet-display"><span class="kw">import</span> { <span class="fn">createVibePortal</span> } <span class="kw">from</span>
   <span class="str">'https://portals-production-ee2d.up.railway.app/embed.js'</span>;
 <span class="cm">// Registers this page (origin + document title as game name)</span>
 
@@ -170,17 +186,7 @@ scene.<span class="fn">add</span>(portal);
   </div>
 
   <div id="panel-pr" class="panel">
-    <h3>// HOW IT WORKS</h3>
-    <div class="step"><span class="num">1.</span> Import <span class="file">embed.js</span> — it <strong>registers</strong> your game (<code style="color:#c3e88d;">window.location.origin</code> + page <span class="tag">&lt;title&gt;</span>).</div>
-    <div class="step"><span class="num">2.</span> After <span class="file">scene</span>, <span class="file">camera</span>, and player position exist: <span class="fn">createVibePortal</span>({ scene, camera }). The portal is a <strong>THREE.Group</strong> — position it, then <span class="fn">scene.add</span>(portal).</div>
-    <div class="step"><span class="num">3.</span> Every frame: <span class="fn">portal.update</span>(player.position) (or any <span class="file">Vector3</span>).</div>
-    <div class="step"><span class="num">4.</span> Proximity: <strong>~6</strong> world units shows the enter prompt; <strong>~2</strong> units navigates. Distances scale with <span class="file">scale</span>.</div>
-    <div class="step"><span class="num">5.</span> Optional: set a clear <span class="tag">&lt;title&gt;</span> in HTML so other games see a good label above your portal.</div>
-    <div class="step"><span class="num">6.</span> If the URL has <span class="str">?ref=</span> (player came from another game), the embed shows a <strong>Return</strong> portal — no extra code.</div>
-    <div class="step" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(200,130,255,0.25);color:#b0b0c8;font-size:12px;line-height:1.7;">
-      <strong style="color:#c792ea;">Options</strong> (defaults): <span class="file">label</span> · <span class="file">username</span> · <span class="file">avatar</span> · <span class="file">scale</span> (1) · <span class="file">proximityDist</span> (6) · <span class="file">enterDist</span> (2) · <span class="file">game</span> (<span class="str">'the-vibe-metaverse'</span>)
-    </div>
-    <div class="step" style="color:#7fdbff; margin-top:8px;">No PR needed — add the import, placement, and <span class="fn">portal.update</span> in your loop.</div>
+    <p>Once you add a portal in your game, the metaverse will have a portal to your game.</p>
   </div>
 
   <div id="portal-prompt">Entering the Vibe Metaverse...</div>
@@ -534,6 +540,38 @@ scene.<span class="fn">add</span>(portal);
     }
 
     init();
+
+    const PORTAL_SNIPPET_TEXT = `import { createVibePortal } from
+  'https://portals-production-ee2d.up.railway.app/embed.js';
+// Registers this page (origin + document title as game name)
+
+const portal = createVibePortal({ scene, camera });
+portal.position.set(0, 0, -10);
+scene.add(portal);
+
+function animate() {
+  requestAnimationFrame(animate);
+  portal.update(player.position);
+  renderer.render(scene, camera);
+}`;
+
+    const copyBtn = document.getElementById('copy-portal-snippet');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(PORTAL_SNIPPET_TEXT);
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        } catch {
+          copyBtn.textContent = 'Copy failed';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        }
+      });
+    }
   </script>
 </body>
 </html>
