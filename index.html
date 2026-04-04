@@ -45,13 +45,27 @@
       margin-top: 6px;
       letter-spacing: 1px;
     }
+    #panel-title .github-row {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    #panel-title a {
+      color: #7fdbff;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(127,219,255,0.35);
+      pointer-events: auto;
+    }
+    #panel-title a:hover {
+      color: #fff;
+      border-bottom-color: rgba(127,219,255,0.85);
+    }
 
     #panel-snippet {
       background: rgba(10,10,30,0.92);
       border: 1px solid rgba(127,219,255,0.4);
       border-radius: 8px;
       padding: 20px 24px;
-      max-width: 480px;
+      max-width: 560px;
       box-shadow: 0 0 30px rgba(127,219,255,0.15);
     }
     #panel-snippet h3 {
@@ -80,7 +94,7 @@
       border: 1px solid rgba(200,130,255,0.4);
       border-radius: 8px;
       padding: 20px 24px;
-      max-width: 400px;
+      max-width: 520px;
       box-shadow: 0 0 30px rgba(200,130,255,0.15);
     }
     #panel-pr h3 {
@@ -127,31 +141,46 @@
   </style>
 </head>
 <body>
-  <div id="hud">Arrow keys to move | Walk into the portal</div>
+  <div id="hud">Arrow keys to move | ~6 units: prompt · ~2 units: enter</div>
 
   <div id="panel-title" class="panel">
     THE VIBE METAVERSE<br>PORTAL NETWORK
     <div class="sub">Add a portal to your game. Join the network.</div>
+    <div class="sub github-row">
+      <a href="https://github.com/thevibemetaverse/thevibemetaverse-v2" target="_blank" rel="noopener noreferrer">GitHub · thevibemetaverse-v2</a>
+    </div>
   </div>
 
   <div id="panel-snippet" class="panel">
     <h3>// ADD A PORTAL TO YOUR GAME</h3>
     <pre><span class="kw">import</span> { <span class="fn">createVibePortal</span> } <span class="kw">from</span>
   <span class="str">'https://portals.thevibemetaverse.com/embed.js'</span>;
+<span class="cm">// Registers this page (origin + document title as game name)</span>
 
 <span class="kw">const</span> portal = <span class="fn">createVibePortal</span>({ <span class="attr">scene</span>, <span class="attr">camera</span> });
+portal.<span class="attr">position</span>.<span class="fn">set</span>(<span class="kw">0</span>, <span class="kw">0</span>, <span class="kw">-10</span>);
 scene.<span class="fn">add</span>(portal);
 
-<span class="cm">// In your render loop:</span>
-portal.<span class="fn">update</span>(player.position);</pre>
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  <span class="fn">requestAnimationFrame</span>(animate);
+  portal.<span class="fn">update</span>(player.position);
+  renderer.<span class="fn">render</span>(scene, camera);
+}</pre>
+    <div class="embed-note" style="margin-top:12px;color:#7fdbff;font-size:12px;letter-spacing:0.5px;">Embed URL: <span style="color:#c3e88d;">https://portals.thevibemetaverse.com/embed.js</span></div>
   </div>
 
   <div id="panel-pr" class="panel">
     <h3>// HOW IT WORKS</h3>
-    <div class="step"><span class="num">1.</span> Add the snippet to your game</div>
-    <div class="step"><span class="num">2.</span> Your game auto-registers with the network</div>
-    <div class="step"><span class="num">3.</span> A portal to your game appears in the metaverse</div>
-    <div class="step" style="color:#7fdbff; margin-top:8px;">No PR needed. Just add the script.</div>
+    <div class="step"><span class="num">1.</span> Import <span class="file">embed.js</span> — it <strong>registers</strong> your game (<code style="color:#c3e88d;">window.location.origin</code> + page <span class="tag">&lt;title&gt;</span>).</div>
+    <div class="step"><span class="num">2.</span> After <span class="file">scene</span>, <span class="file">camera</span>, and player position exist: <span class="fn">createVibePortal</span>({ scene, camera }). The portal is a <strong>THREE.Group</strong> — position it, then <span class="fn">scene.add</span>(portal).</div>
+    <div class="step"><span class="num">3.</span> Every frame: <span class="fn">portal.update</span>(player.position) (or any <span class="file">Vector3</span>).</div>
+    <div class="step"><span class="num">4.</span> Proximity: <strong>~6</strong> world units shows the enter prompt; <strong>~2</strong> units navigates. Distances scale with <span class="file">scale</span>.</div>
+    <div class="step"><span class="num">5.</span> Optional: set a clear <span class="tag">&lt;title&gt;</span> in HTML so other games see a good label above your portal.</div>
+    <div class="step"><span class="num">6.</span> If the URL has <span class="str">?ref=</span> (player came from another game), the embed shows a <strong>Return</strong> portal — no extra code.</div>
+    <div class="step" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(200,130,255,0.25);color:#b0b0c8;font-size:12px;line-height:1.7;">
+      <strong style="color:#c792ea;">Options</strong> (defaults): <span class="file">label</span> · <span class="file">username</span> · <span class="file">avatar</span> · <span class="file">scale</span> (1) · <span class="file">proximityDist</span> (6) · <span class="file">enterDist</span> (2) · <span class="file">game</span> (<span class="str">'the-vibe-metaverse'</span>)
+    </div>
+    <div class="step" style="color:#7fdbff; margin-top:8px;">No PR needed — add the import, placement, and <span class="fn">portal.update</span> in your loop.</div>
   </div>
 
   <div id="portal-prompt">Entering the Vibe Metaverse...</div>
@@ -445,7 +474,7 @@ portal.<span class="fn">update</span>(player.position);</pre>
       if (navigating || !player) return;
       const dz = player.position.z - portalGroup.position.z;
       const dx = Math.abs(player.position.x - portalGroup.position.x);
-      if (dz < 2.5 && dx < 2) {
+      if (dz < 2 && dx < 2) {
         navigating = true;
         document.getElementById('portal-prompt').style.display = 'block';
         setTimeout(() => {
