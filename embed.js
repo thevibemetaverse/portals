@@ -46,6 +46,7 @@ export function createVibePortal(opts) {
   const avatar = opts.avatar || null;
   const scene = opts.scene || null;
   const camera = opts.camera || null;
+  const portalScale = opts.scale || 1;
 
   const ref = getRef();
   const isReturn = !!ref;
@@ -55,6 +56,8 @@ export function createVibePortal(opts) {
     label,
     isReturn,
     name: 'vibe-portal',
+    scale: portalScale,
+    origin: opts.origin || 'center',
   });
   const portalMat = group.userData.portalMat;
 
@@ -63,6 +66,8 @@ export function createVibePortal(opts) {
   let promptEl = null;
   let isNear = false;
   const clock = new THREE.Clock();
+  const PROXIMITY_DIST = (opts.proximityDist || 6) * portalScale;
+  const ENTER_DIST = (opts.enterDist || 2) * portalScale;
 
   // Create the HUD prompt element
   function ensurePrompt() {
@@ -76,21 +81,8 @@ export function createVibePortal(opts) {
       border: 1px solid rgba(127,219,255,0.5); display: none; z-index: 99999;
       pointer-events: none;
     `;
-    promptEl.textContent = isReturn
-      ? 'Press E to return'
-      : 'Press E to enter ' + label;
     document.body.appendChild(promptEl);
   }
-
-  // Key listener for interaction
-  function onKeyDown(e) {
-    if (e.code === 'KeyE' && isNear && !navigating) {
-      navigating = true;
-      if (promptEl) promptEl.textContent = isReturn ? 'Returning...' : 'Entering...';
-      navigate();
-    }
-  }
-  window.addEventListener('keydown', onKeyDown);
 
   async function navigate() {
     if (isReturn) {
@@ -129,11 +121,19 @@ export function createVibePortal(opts) {
     group.getWorldPosition(worldPos);
     const dist = playerPosition.distanceTo(worldPos);
     const wasNear = isNear;
-    isNear = dist < 3;
+    isNear = dist < PROXIMITY_DIST;
 
-    if (isNear && !wasNear && !navigating) {
+    if (isNear && !navigating) {
       ensurePrompt();
+      promptEl.textContent = isReturn ? 'Entering portal...' : 'Entering ' + label + '...';
       promptEl.style.display = 'block';
+
+      // Walk-in trigger: navigate when player reaches the portal
+      if (dist < ENTER_DIST) {
+        navigating = true;
+        promptEl.textContent = isReturn ? 'Returning...' : 'Entering...';
+        navigate();
+      }
     } else if (!isNear && wasNear) {
       if (promptEl) promptEl.style.display = 'none';
     }
@@ -141,7 +141,6 @@ export function createVibePortal(opts) {
 
   // Cleanup method
   group.dispose = function () {
-    window.removeEventListener('keydown', onKeyDown);
     if (promptEl && promptEl.parentNode) promptEl.parentNode.removeChild(promptEl);
     disposePortalMesh(group);
   };

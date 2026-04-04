@@ -21,6 +21,8 @@ const RETURN_COLOR2 = 0xff9e64;
  * @param {THREE.Color} [opts.color1] — Override accent / swirl (optional)
  * @param {THREE.Color} [opts.color2] — Override secondary swirl (optional)
  * @param {string} [opts.name] — `group.name` (default `"vibe-portal"`)
+ * @param {number} [opts.scale] — Uniform scale multiplier (default 1)
+ * @param {string} [opts.origin] — "center" (default) or "bottom" — bottom places the portal base at y=0
  * @returns {THREE.Group} `userData.portalMat` is the ShaderMaterial; use `disposePortalMesh(group)` when done
  */
 export function createPortalMesh(opts = {}) {
@@ -30,6 +32,8 @@ export function createPortalMesh(opts = {}) {
     color1: color1Opt,
     color2: color2Opt,
     name = 'vibe-portal',
+    scale = 1,
+    origin = 'center',
   } = opts;
 
   const color1 = color1Opt
@@ -42,8 +46,11 @@ export function createPortalMesh(opts = {}) {
   const group = new THREE.Group();
   group.name = name;
 
-  const portalRadius = 1.45;
+  const portalRadius = 1.45 * scale;
   const portalGeo = new THREE.CircleGeometry(portalRadius, 64);
+
+  // y offset: "center" keeps original 1.65 behavior, "bottom" places portal base at y=0
+  const portalY = origin === 'bottom' ? portalRadius : 1.65 * scale;
   const portalMat = new THREE.ShaderMaterial({
     uniforms: {
       time: { value: 0 },
@@ -110,16 +117,16 @@ export function createPortalMesh(opts = {}) {
     toneMapped: false,
   });
   const portalSurface = new THREE.Mesh(portalGeo, portalMat);
-  portalSurface.position.set(0, 1.65, 0);
+  portalSurface.position.set(0, portalY, 0);
   portalSurface.renderOrder = 1;
   group.add(portalSurface);
 
-  const light1 = new THREE.PointLight(color1, 3.5, 10);
-  light1.position.set(0, 1.65, 0.9);
+  const light1 = new THREE.PointLight(color1, 3.5, 10 * scale);
+  light1.position.set(0, portalY, 0.9 * scale);
   group.add(light1);
 
-  const light2 = new THREE.PointLight(color2, 2, 8);
-  light2.position.set(0, 1.65, -0.4);
+  const light2 = new THREE.PointLight(color2, 2, 8 * scale);
+  light2.position.set(0, portalY, -0.4 * scale);
   group.add(light2);
 
   const canvas = document.createElement('canvas');
@@ -136,8 +143,8 @@ export function createPortalMesh(opts = {}) {
   const tex = new THREE.CanvasTexture(canvas);
   const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.position.set(0, 1.65 + portalRadius + 0.55, 0);
-  sprite.scale.set(4, 0.5, 1);
+  sprite.position.set(0, portalY + portalRadius + 0.55 * scale, 0);
+  sprite.scale.set(4 * scale, 0.5 * scale, 1);
   group.add(sprite);
 
   group.userData.portalMat = portalMat;
