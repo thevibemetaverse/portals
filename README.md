@@ -1,86 +1,55 @@
 # Portals — The Vibe Metaverse Portal Network
 
-A community-driven portal network. Add a portal to your game with one snippet. Submit a PR to join the network.
+A community-driven portal network. Add a 3D portal to your Three.js game with three lines of code. Submit a PR and a portal to your game appears in the metaverse automatically.
 
-## Add a Portal to Your Game
-
-```html
-<script src="https://YOURDOMAIN/portals.js"></script>
-<script>
-  // Load all portals in the network
-  const portals = await Portals.load();
-
-  // When a player enters a portal in your game
-  Portals.enter("game-slug", {
-    username: "player1",
-    avatar_url: "https://example.com/avatar.glb"
-  });
-</script>
-```
-
-`Portals.load()` returns an array of portals:
-
-```json
-[
-  {
-    "slug": "my-game",
-    "url": "https://mygame.com",
-    "title": "My Game",
-    "description": "A cool game.",
-    "portalImageUrl": "https://mygame.com/thumbnail.png"
-  }
-]
-```
-
-`Portals.enter(slug, params)` redirects the player to that portal's URL, passing along `username`, `avatar_url`, and `ref` (auto-set to the current page).
-
-`Portals.ref()` returns the referring URL (from the `?ref=` query param) or `null` if the player didn't arrive through a portal.
-
-`Portals.back()` navigates back to the referring portal. Use it to let players return where they came from:
+## Quick Start
 
 ```js
-// Show a "go back" portal if the player arrived from another game
-if (Portals.ref()) {
-  // render a return portal, and when they enter it:
-  Portals.back();
-}
+import { createVibePortal } from 'https://portals.thevibemetaverse.com/embed.js';
+
+const portal = createVibePortal({ scene, camera });
+scene.add(portal);
+
+// In your render loop:
+portal.update(player.position);
 ```
 
-## Submit Your Portal
+That's it. A 3D portal arch appears in your game. Walk up to it and press E to enter the metaverse. If a player arrived from the metaverse, a return portal appears automatically.
 
-1. Fork this repo
-2. Copy `PORTALS/__TEMPLATE__.json` to `PORTALS/your-game.json`
-3. Fill in your details:
+### Options
 
-```json
-{
-  "url": "https://yourgame.com",
-  "title": "Your Game",
-  "description": "A short description of your game.",
-  "portalImageUrl": "https://yourgame.com/thumbnail.png"
-}
+All optional:
+
+```js
+createVibePortal({
+  scene,              // your Three.js scene
+  camera,             // your Three.js camera
+  game: 'some-slug',  // destination game slug (default: 'the-vibe-metaverse')
+  username: 'player1', // passed through the portal
+  avatar: 'https://...' // passed through the portal
+});
 ```
 
-4. Submit a pull request
+## The Flywheel
 
-Once merged, your portal automatically appears in every game using the network.
+Add the snippet to your game and a portal to your game automatically appears inside The Vibe Metaverse. No PR, no config — just add the script and your game joins the network.
 
 ## How It Works
 
-- `PORTALS/` contains one JSON file per portal (added via PR)
-- `build.js` generates `portals.json` from those files (run `node build.js`)
-- `portals.js` is the client snippet — fetches `portals.json` and handles navigation
-- Deploy as a static site (GitHub Pages, Vercel, Netlify, any CDN)
+1. You add `embed.js` to your Three.js game
+2. On load, it auto-registers your game with the portal server
+3. The metaverse fetches the registry and renders a 3D portal to your game
+4. Players walk through portals to travel between games
 
-## The Vibe Metaverse v2 Integration
+## Advanced: Custom Integration
 
-Games like The Vibe Metaverse v2 consume the portal list and render them in 3D:
+If you need full control (non-Three.js games, custom portal rendering), use `portals.js` directly:
 
-```js
-const portals = await fetch("https://YOURDOMAIN/portals.json").then(r => r.json());
-portals.forEach(portal => {
-  // Create a 3D portal object in your scene
-  // On player proximity, call:
-  Portals.enter(portal.slug, { username, avatar_url });
-});
+```html
+<script src="https://portals.thevibemetaverse.com/portals.js"></script>
+<script>
+  const portals = await Portals.load();
+  Portals.enter("game-slug", { username: "player1", avatar_url: "https://..." });
+  if (Portals.ref()) Portals.back();
+</script>
 ```

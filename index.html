@@ -136,38 +136,22 @@
 
   <div id="panel-snippet" class="panel">
     <h3>// ADD A PORTAL TO YOUR GAME</h3>
-    <pre><span class="cm">&lt;!-- 1. Add the script --&gt;</span>
-<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://YOURDOMAIN/portals.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+    <pre><span class="kw">import</span> { <span class="fn">createVibePortal</span> } <span class="kw">from</span>
+  <span class="str">'https://portals.thevibemetaverse.com/embed.js'</span>;
 
-<span class="tag">&lt;script&gt;</span>
-  <span class="cm">// 2. Load all portals in the network</span>
-  <span class="kw">const</span> portals = <span class="kw">await</span> <span class="fn">Portals.load</span>();
+<span class="kw">const</span> portal = <span class="fn">createVibePortal</span>({ <span class="attr">scene</span>, <span class="attr">camera</span> });
+scene.<span class="fn">add</span>(portal);
 
-  <span class="cm">// 3. When a player enters a portal</span>
-  <span class="fn">Portals.enter</span>(<span class="str">"game-slug"</span>, {
-    <span class="attr">username</span>: <span class="str">"player1"</span>,
-    <span class="attr">avatar_url</span>: <span class="str">"https://..."</span>
-  });
-
-  <span class="cm">// 4. Let players go back where they came from</span>
-  <span class="kw">if</span> (<span class="fn">Portals.ref</span>()) <span class="fn">Portals.back</span>();
-<span class="tag">&lt;/script&gt;</span></pre>
+<span class="cm">// In your render loop:</span>
+portal.<span class="fn">update</span>(player.position);</pre>
   </div>
 
   <div id="panel-pr" class="panel">
-    <h3>// SUBMIT YOUR PORTAL</h3>
-    <div class="step"><span class="num">1.</span> Fork the repo</div>
-    <div class="step"><span class="num">2.</span> Copy <span class="file">PORTALS/__TEMPLATE__.json</span></div>
-    <div class="step"><span class="num">3.</span> Rename to <span class="file">your-game.json</span></div>
-    <div class="step"><span class="num">4.</span> Fill in your details:</div>
-    <pre>{
-  "url": "https://yourgame.com",
-  "title": "Your Game",
-  "description": "A cool game.",
-  "portalImageUrl": "https://..."
-}</pre>
-    <div class="step"><span class="num">5.</span> Submit a pull request</div>
-    <div class="step" style="color:#7fdbff; margin-top:8px;">Your portal appears in every game on the network.</div>
+    <h3>// HOW IT WORKS</h3>
+    <div class="step"><span class="num">1.</span> Add the snippet to your game</div>
+    <div class="step"><span class="num">2.</span> Your game auto-registers with the network</div>
+    <div class="step"><span class="num">3.</span> A portal to your game appears in the metaverse</div>
+    <div class="step" style="color:#7fdbff; margin-top:8px;">No PR needed. Just add the script.</div>
   </div>
 
   <div id="portal-prompt">Entering the Vibe Metaverse...</div>
