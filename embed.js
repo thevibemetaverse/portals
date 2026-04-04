@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createPortalMesh, disposePortalMesh } from './portal-mesh.js';
 
 const API_BASE = new URL('.', import.meta.url).href.replace(/\/$/, '');
 
@@ -49,119 +50,13 @@ export function createVibePortal(opts) {
   const ref = getRef();
   const isReturn = !!ref;
 
-  const group = new THREE.Group();
-  group.name = 'vibe-portal';
-
-  // Colors
-  const color1 = isReturn ? new THREE.Color(0xffcb6b) : new THREE.Color(0x7fdbff);
-  const color2 = isReturn ? new THREE.Color(0xff9e64) : new THREE.Color(0xc792ea);
-
-  // Portal frame — two pillars + arch
-  const frameMat = new THREE.MeshStandardMaterial({
-    color: 0x333355,
-    roughness: 0.4,
-    metalness: 0.8,
-  });
-
-  const pillarGeo = new THREE.BoxGeometry(0.25, 3.2, 0.25);
-  const leftPillar = new THREE.Mesh(pillarGeo, frameMat);
-  leftPillar.position.set(-1.3, 1.6, 0);
-  leftPillar.castShadow = true;
-  group.add(leftPillar);
-
-  const rightPillar = new THREE.Mesh(pillarGeo, frameMat);
-  rightPillar.position.set(1.3, 1.6, 0);
-  rightPillar.castShadow = true;
-  group.add(rightPillar);
-
-  const archGeo = new THREE.TorusGeometry(1.3, 0.13, 8, 32, Math.PI);
-  const arch = new THREE.Mesh(archGeo, frameMat);
-  arch.position.set(0, 3.2, 0);
-  arch.rotation.z = Math.PI;
-  arch.castShadow = true;
-  group.add(arch);
-
-  // Neon edge strips on pillars
-  const neonMat = new THREE.MeshBasicMaterial({ color: color1 });
-  const stripGeo = new THREE.BoxGeometry(0.04, 3.2, 0.04);
-  const leftStrip = new THREE.Mesh(stripGeo, neonMat);
-  leftStrip.position.set(-1.12, 1.6, 0.12);
-  group.add(leftStrip);
-  const rightStrip = new THREE.Mesh(stripGeo, neonMat);
-  rightStrip.position.set(1.12, 1.6, 0.12);
-  group.add(rightStrip);
-
-  // Portal surface — swirling shader
-  const portalGeo = new THREE.PlaneGeometry(2.4, 3.0);
-  const portalMat = new THREE.ShaderMaterial({
-    uniforms: {
-      time: { value: 0 },
-      color1: { value: color1 },
-      color2: { value: color2 },
-    },
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float time;
-      uniform vec3 color1;
-      uniform vec3 color2;
-      varying vec2 vUv;
-
-      void main() {
-        vec2 center = vUv - 0.5;
-        float dist = length(center);
-        float angle = atan(center.y, center.x);
-
-        float swirl = sin(angle * 3.0 + dist * 8.0 - time * 2.0) * 0.5 + 0.5;
-        float pulse = sin(time * 1.5) * 0.15 + 0.85;
-        float ring = sin(dist * 12.0 - time * 3.0) * 0.5 + 0.5;
-
-        vec3 col = mix(color1, color2, swirl * ring);
-        float alpha = smoothstep(0.55, 0.3, dist) * pulse;
-
-        gl_FragColor = vec4(col * 1.5, alpha);
-      }
-    `,
-    transparent: true,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-  });
-  const portalSurface = new THREE.Mesh(portalGeo, portalMat);
-  portalSurface.position.set(0, 1.65, 0.05);
-  group.add(portalSurface);
-
-  // Glow lights
-  const light1 = new THREE.PointLight(color1, 2, 8);
-  light1.position.set(0, 2, 1);
-  group.add(light1);
-
-  const light2 = new THREE.PointLight(color2, 1, 6);
-  light2.position.set(0, 1, 1.5);
-  group.add(light2);
-
-  // Label — canvas texture sprite
   const label = isReturn ? 'Return' : (opts.label || 'The Vibe Metaverse');
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-  ctx.font = 'bold 32px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#' + color1.getHexString();
-  ctx.shadowColor = '#' + color1.getHexString();
-  ctx.shadowBlur = 12;
-  ctx.fillText(label, 256, 40);
-  const tex = new THREE.CanvasTexture(canvas);
-  const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
-  const sprite = new THREE.Sprite(spriteMat);
-  sprite.position.set(0, 4.0, 0);
-  sprite.scale.set(4, 0.5, 1);
-  group.add(sprite);
+  const group = createPortalMesh({
+    label,
+    isReturn,
+    name: 'vibe-portal',
+  });
+  const portalMat = group.userData.portalMat;
 
   // Interaction state
   let navigating = false;
@@ -248,14 +143,7 @@ export function createVibePortal(opts) {
   group.dispose = function () {
     window.removeEventListener('keydown', onKeyDown);
     if (promptEl && promptEl.parentNode) promptEl.parentNode.removeChild(promptEl);
-    portalMat.dispose();
-    portalGeo.dispose();
-    pillarGeo.dispose();
-    archGeo.dispose();
-    frameMat.dispose();
-    neonMat.dispose();
-    tex.dispose();
-    spriteMat.dispose();
+    disposePortalMesh(group);
   };
 
   return group;
