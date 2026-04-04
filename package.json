@@ -2,7 +2,6 @@
   "name": "@vibe/portals",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "description": "Vibe Portal Network SDK — consistent portal visuals and navigation for any Three.js game",
   "exports": {
     ".": "./sdk/index.js",
