@@ -1,0 +1,10 @@
+{
+  "name": "portals",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Vibe Metaverse portal network (static site + embed SDK)",
+  "scripts": {
+    "build": "node build.js",
+    "start": "PORT=3001 node server.js"
+  }
+}
