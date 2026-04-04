@@ -8,7 +8,8 @@
     "./mesh": "./portal-mesh.js",
     "./embed": "./embed.js",
     "./registry": "./sdk/registry.js",
-    "./hub": "./sdk/hub.js"
+    "./hub": "./sdk/hub.js",
+    "./network": "./sdk/network.js"
   },
   "peerDependencies": {
     "three": ">=0.150.0"
