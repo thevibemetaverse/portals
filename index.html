@@ -449,7 +449,10 @@ portal.<span class="fn">update</span>(player.position);</pre>
         navigating = true;
         document.getElementById('portal-prompt').style.display = 'block';
         setTimeout(() => {
-          window.location.href = 'https://thevibemetaverse-v2-production.up.railway.app';
+          const u = new URL('https://thevibemetaverse-v2-production.up.railway.app/');
+          u.searchParams.set('portal', 'true');
+          u.searchParams.set('ref', window.location.href);
+          window.location.href = u.toString();
         }, 800);
       }
     }
