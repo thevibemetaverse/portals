@@ -33,7 +33,7 @@ function getRef() {
  * Creates a 3D portal that you add to your Three.js scene.
  *
  * Usage:
- *   import { createVibePortal } from 'https://portals.thevibemetaverse.com/embed.js';
+ *   import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
  *   const portal = createVibePortal({ scene, camera });
  *   scene.add(portal);
  *   // In your render loop:

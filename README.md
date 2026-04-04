@@ -5,7 +5,7 @@ A community-driven portal network. Add a 3D portal to your Three.js game with th
 ## Quick Start
 
 ```js
-import { createVibePortal } from 'https://portals.thevibemetaverse.com/embed.js';
+import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
 
 const portal = createVibePortal({ scene, camera });
 scene.add(portal);
@@ -14,7 +14,7 @@ scene.add(portal);
 portal.update(player.position);
 ```
 
-That's it. A 3D portal arch appears in your game. Walk up to it and press E to enter the metaverse. If a player arrived from the metaverse, a return portal appears automatically.
+That's it. A 3D portal arch appears in your game. Walk into it to enter the metaverse (proximity triggers navigation). If a player arrived from the metaverse, a return portal appears automatically.
 
 ## SDK (`@vibe/portals`)
 
@@ -72,7 +72,7 @@ Add the snippet to your game and a portal to your game automatically appears ins
 If you need full control (non-Three.js games, custom portal rendering), use `portals.js` directly:
 
 ```html
-<script src="https://portals.thevibemetaverse.com/portals.js"></script>
+<script src="https://portals-production-ee2d.up.railway.app/portals.js"></script>
 <script>
   const portals = await Portals.load();
   Portals.enter("game-slug", { username: "player1", avatar_url: "https://..." });
