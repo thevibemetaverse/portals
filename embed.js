@@ -93,7 +93,8 @@ export function createVibePortal(opts) {
     try {
       const portals = await loadPortals();
       const portal = portals.find(function (p) { return p.slug === game; });
-      const destUrl = portal ? portal.url : 'https://thevibemetaverse.com';
+      // TODO: change this to the production URL
+      const destUrl = portal ? portal.url : 'https://thevibemetaverse-v2-production.up.railway.app';
 
       const url = new URL(destUrl);
       url.searchParams.set('portal', 'true');
