@@ -16,6 +16,32 @@ portal.update(player.position);
 
 That's it. A 3D portal arch appears in your game. Walk up to it and press E to enter the metaverse. If a player arrived from the metaverse, a return portal appears automatically.
 
+## SDK (`@vibe/portals`)
+
+This repo **is** the portal SDK. **The Vibe Metaverse is the first hub game** that uses it so every destination gets the **same swirl, labels, and URL handoff** (`portal`, `ref`, `username`, `avatar_url`). Any other Three.js game can depend on the same package.
+
+| What | Use case |
+|------|----------|
+| `embed.js` (`createVibePortal`) | Fast path: one portal in your scene → metaverse or return |
+| `@vibe/portals` (see `sdk/index.js`) | Full control: import mesh + registry helpers + optional `spawnPortalRow` for hub-style rows |
+
+**Package exports** (see `package.json`): `.` → full SDK, `./mesh`, `./embed`, `./registry`, `./hub`.
+
+**Browser games without a bundler:** map the module name to a URL, e.g.:
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+    "@vibe/portals": "https://your-portals-host/sdk/index.js"
+  }
+}
+</script>
+```
+
+Then `import { createPortalMesh, fetchPortalsRegistry } from '@vibe/portals'`. Host `sdk/` and `portal-mesh.js` from this service (or publish to npm and resolve via your build tool).
+
 ### Options
 
 All optional:

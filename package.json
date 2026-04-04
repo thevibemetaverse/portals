@@ -1,8 +1,19 @@
 {
-  "name": "portals",
+  "name": "@vibe/portals",
   "version": "1.0.0",
   "private": true,
-  "description": "The Vibe Metaverse portal network (static site + embed SDK)",
+  "type": "module",
+  "description": "Vibe Portal Network SDK — consistent portal visuals and navigation for any Three.js game",
+  "exports": {
+    ".": "./sdk/index.js",
+    "./mesh": "./portal-mesh.js",
+    "./embed": "./embed.js",
+    "./registry": "./sdk/registry.js",
+    "./hub": "./sdk/hub.js"
+  },
+  "peerDependencies": {
+    "three": ">=0.150.0"
+  },
   "scripts": {
     "build": "node build.js",
     "start": "PORT=3001 node server.js"
