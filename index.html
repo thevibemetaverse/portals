@@ -202,15 +202,18 @@ scene.<span class="fn">add</span>(portal);
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    const PAGE_PARAMS = new URLSearchParams(window.location.search);
-    const TEST_AVATAR_URL = PAGE_PARAMS.get('avatar_url');
+    const params = new URLSearchParams(window.location.search);
+    const avatarUrl = params.get('avatar_url');
 
     const ROOM_W = 14, ROOM_H = 6, ROOM_D = 14;
+    const AVATAR_TARGET_HEIGHT = 1.2;
 
     let scene, camera, renderer, controls;
     let player, portalGroup;
     let navigating = false;
+    let playerMixer = null;
 
     const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
     const SPEED = 0.08;
@@ -246,8 +249,8 @@ scene.<span class="fn">add</span>(portal);
       setupLighting();
 
       const hudEl = document.getElementById('hud');
-      if (hudEl && TEST_AVATAR_URL) {
-        const short = TEST_AVATAR_URL.length > 48 ? TEST_AVATAR_URL.slice(0, 24) + '…' + TEST_AVATAR_URL.slice(-20) : TEST_AVATAR_URL;
+      if (hudEl && avatarUrl) {
+        const short = avatarUrl.length > 48 ? avatarUrl.slice(0, 24) + '…' + avatarUrl.slice(-20) : avatarUrl;
         hudEl.textContent = 'Arrow keys to move | ~6 units: prompt · ~2 units: enter · avatar_url: ' + short;
       }
 
@@ -427,8 +430,74 @@ scene.<span class="fn">add</span>(portal);
       portalGroup.add(portalLight2);
     }
 
+    function disposePlayerMixer() {
+      if (playerMixer) {
+        playerMixer.stopAllAction();
+        playerMixer = null;
+      }
+    }
+
+    function pickIdleClip(clips) {
+      if (!clips || !clips.length) return null;
+      return (
+        clips.find((c) => /idle|stand|breath|t-?pose/i.test(c.name)) ||
+        clips[0]
+      );
+    }
+
+    function loadAvatarGlb(url) {
+      const loader = new GLTFLoader();
+      loader.load(
+        url,
+        (gltf) => {
+          if (!player) return;
+          disposePlayerMixer();
+
+          const cube = player.userData.placeholderCube;
+          if (cube) {
+            player.remove(cube);
+            cube.geometry.dispose();
+            cube.material.dispose();
+            player.userData.placeholderCube = null;
+          }
+
+          const model = gltf.scene;
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          const box = new THREE.Box3().setFromObject(model);
+          const size = box.getSize(new THREE.Vector3());
+          const scale = AVATAR_TARGET_HEIGHT / Math.max(size.y, 0.001);
+          model.scale.setScalar(scale);
+
+          box.setFromObject(model);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+          model.position.set(-center.x, -box.min.y, -center.z);
+
+          player.add(model);
+
+          const clip = pickIdleClip(gltf.animations);
+          if (clip) {
+            playerMixer = new THREE.AnimationMixer(model);
+            playerMixer.clipAction(clip).play();
+          }
+        },
+        undefined,
+        (err) => {
+          console.error('Failed to load avatar_url GLB:', err);
+        }
+      );
+    }
+
     function buildPlayer() {
-      // Simple glowing cube
+      player = new THREE.Group();
+      player.position.set(0, 0, 3);
+
       const geo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
       const mat = new THREE.MeshStandardMaterial({
         color: 0x7fdbff,
@@ -437,15 +506,19 @@ scene.<span class="fn">add</span>(portal);
         roughness: 0.3,
         metalness: 0.7,
       });
-      player = new THREE.Mesh(geo, mat);
-      player.position.set(0, 0.2, 3);
-      player.castShadow = true;
+      const cube = new THREE.Mesh(geo, mat);
+      cube.position.set(0, 0.2, 0);
+      cube.castShadow = true;
+      player.userData.placeholderCube = cube;
+      player.add(cube);
+
+      const pLight = new THREE.PointLight(0x7fdbff, 0.5, 2);
+      pLight.position.set(0, 0.4, 0);
+      player.add(pLight);
+
       scene.add(player);
 
-      // Small light under player
-      const pLight = new THREE.PointLight(0x7fdbff, 0.5, 2);
-      pLight.position.set(0, 0, 0);
-      player.add(pLight);
+      if (avatarUrl) loadAvatarGlb(avatarUrl);
     }
 
     function setupLighting() {
@@ -496,7 +569,7 @@ scene.<span class="fn">add</span>(portal);
           const u = new URL('https://www.thevibemetaverse.com/');
           u.searchParams.set('portal', 'true');
           u.searchParams.set('ref', window.location.href);
-          if (TEST_AVATAR_URL) u.searchParams.set('avatar_url', TEST_AVATAR_URL);
+          if (avatarUrl) u.searchParams.set('avatar_url', avatarUrl);
           window.location.href = u.toString();
         }, 800);
       }
@@ -520,6 +593,8 @@ scene.<span class="fn">add</span>(portal);
         const portalSurface = portalGroup.children.find(c => c.material && c.material.uniforms);
         if (portalSurface) portalSurface.material.uniforms.time.value = elapsed;
       }
+
+      if (playerMixer) playerMixer.update(dt);
 
       // Move player
       if (player && !navigating) {
