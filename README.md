@@ -17,7 +17,21 @@ Every game that joins the network gets a portal inside every other game. More ga
 
 ## Add a portal to your game
 
-### Option 1: Let your AI agent do it (the fastest)
+### Option 1: The embed (fastest)
+
+```js
+import { createVibePortal } from 'https://portal.thevibemetaverse.com/embed.js';
+
+const portal = createVibePortal({ scene, camera });
+scene.add(portal);
+
+// In your render loop:
+portal.update(player.position);
+```
+
+That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
+
+### Option 2: Let your AI agent do it
 
 Copy this prompt into **Cursor**, **Claude Code**, or any AI coding agent:
 
@@ -26,7 +40,7 @@ Add a portal to my Three.js game that connects it to the Vibe Metaverse portal n
 
 1. Find where my Three.js scene and camera are initialized.
 2. Add this import to that file:
-   import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
+   import { createVibePortal } from 'https://portal.thevibemetaverse.com/embed.js';
 3. After the scene is set up, create the portal:
    const portal = createVibePortal({ scene, camera });
    scene.add(portal);
@@ -43,20 +57,6 @@ enterDist (default 2), username, avatar.
 ```
 
 The agent will find the right file, the right variables, and the right spot in your render loop.
-
-### Option 2: The embed (medium fast)
-
-```js
-import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
-
-const portal = createVibePortal({ scene, camera });
-scene.add(portal);
-
-// In your render loop:
-portal.update(player.position);
-```
-
-That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
 
 ### Option 3: Submit a PR (slow)
 
@@ -77,7 +77,7 @@ If you'd rather register without adding the embed yet, just add a JSON file:
 
 4. Open a PR. Once merged, a portal to your game appears across the network.
 
-### Option 3: Auto-registration
+### Option 4: Auto-registration
 
 When you use the embed script, your game auto-registers with the portal server. A PR is created on this repo automatically -- no manual steps needed. Once a maintainer merges it, you're in.
 
@@ -167,7 +167,7 @@ spawnPortalRow(scene, portals);
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
-    "@vibe/portals": "https://portals-production-ee2d.up.railway.app/sdk/index.js"
+    "@vibe/portals": "https://portal.thevibemetaverse.com/sdk/index.js"
   }
 }
 </script>
@@ -179,7 +179,7 @@ spawnPortalRow(scene, portals);
 ### Low-level API (non-Three.js)
 
 ```html
-<script src="https://portals-production-ee2d.up.railway.app/portals.js"></script>
+<script src="https://portal.thevibemetaverse.com/portals.js"></script>
 <script>
   const portals = await Portals.load();
   Portals.enter('game-slug', { username: 'player1', avatar_url: 'https://...' });
@@ -195,7 +195,7 @@ The registry lives in the [`PORTALS/`](./PORTALS) directory. Each game is a JSON
 
 To see all currently registered portals:
 ```
-GET https://portals-production-ee2d.up.railway.app/portals.json
+GET https://portal.thevibemetaverse.com/portals.json
 ```
 
 ---

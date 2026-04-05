@@ -160,7 +160,7 @@
     THE VIBE METAVERSE<br>PORTAL NETWORK
     <div class="sub">Add a portal to your game. Join the network.</div>
     <div class="sub github-row">
-      <a href="https://github.com/thevibemetaverse/thevibemetaverse-v2" target="_blank" rel="noopener noreferrer">GitHub · thevibemetaverse-v2</a>
+      <a href="https://github.com/thevibemetaverse/portals" target="_blank" rel="noopener noreferrer">GitHub · thevibemetaverse-v2</a>
     </div>
   </div>
 
@@ -170,7 +170,7 @@
       <button type="button" class="copy-btn" id="copy-portal-snippet" aria-label="Copy code to add a portal">Copy</button>
     </div>
     <pre id="portal-snippet-display"><span class="kw">import</span> { <span class="fn">createVibePortal</span> } <span class="kw">from</span>
-  <span class="str">'https://portals-production-ee2d.up.railway.app/embed.js'</span>;
+  <span class="str">'https://portal.thevibemetaverse.com/embed.js'</span>;
 <span class="cm">// Registers this page (origin + document title as game name)</span>
 
 <span class="kw">const</span> portal = <span class="fn">createVibePortal</span>({ <span class="attr">scene</span>, <span class="attr">camera</span> });
@@ -182,7 +182,7 @@ scene.<span class="fn">add</span>(portal);
   portal.<span class="fn">update</span>(player.position);
   renderer.<span class="fn">render</span>(scene, camera);
 }</pre>
-    <div class="embed-note" style="margin-top:12px;color:#7fdbff;font-size:12px;letter-spacing:0.5px;">Embed URL: <span style="color:#c3e88d;">https://portals-production-ee2d.up.railway.app/embed.js</span></div>
+    <div class="embed-note" style="margin-top:12px;color:#7fdbff;font-size:12px;letter-spacing:0.5px;">Embed URL: <span style="color:#c3e88d;">https://portal.thevibemetaverse.com/embed.js</span></div>
   </div>
 
   <div id="panel-pr" class="panel">
@@ -484,7 +484,7 @@ scene.<span class="fn">add</span>(portal);
         navigating = true;
         document.getElementById('portal-prompt').style.display = 'block';
         setTimeout(() => {
-          const u = new URL('https://thevibemetaverse-v2-production.up.railway.app/');
+          const u = new URL('https://www.thevibemetaverse.com/');
           u.searchParams.set('portal', 'true');
           u.searchParams.set('ref', window.location.href);
           window.location.href = u.toString();
@@ -542,7 +542,7 @@ scene.<span class="fn">add</span>(portal);
     init();
 
     const PORTAL_SNIPPET_TEXT = `import { createVibePortal } from
-  'https://portals-production-ee2d.up.railway.app/embed.js';
+  'https://portal.thevibemetaverse.com/embed.js';
 // Registers this page (origin + document title as game name)
 
 const portal = createVibePortal({ scene, camera });
