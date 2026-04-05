@@ -17,21 +17,7 @@ Every game that joins the network gets a portal inside every other game. More ga
 
 ## Add a portal to your game
 
-### Option 1: The embed (fastest)
-
-```js
-import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
-
-const portal = createVibePortal({ scene, camera });
-scene.add(portal);
-
-// In your render loop:
-portal.update(player.position);
-```
-
-That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
-
-### Option 2: Let your AI agent do it
+### Option 1: Let your AI agent do it (the fastest)
 
 Copy this prompt into **Cursor**, **Claude Code**, or any AI coding agent:
 
@@ -58,7 +44,21 @@ enterDist (default 2), username, avatar.
 
 The agent will find the right file, the right variables, and the right spot in your render loop.
 
-### Option 3: Submit a PR (manual registration)
+### Option 2: The embed (medium fast)
+
+```js
+import { createVibePortal } from 'https://portals-production-ee2d.up.railway.app/embed.js';
+
+const portal = createVibePortal({ scene, camera });
+scene.add(portal);
+
+// In your render loop:
+portal.update(player.position);
+```
+
+That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
+
+### Option 3: Submit a PR (slow)
 
 If you'd rather register without adding the embed yet, just add a JSON file:
 
