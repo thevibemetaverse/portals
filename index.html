@@ -203,6 +203,9 @@ scene.<span class="fn">add</span>(portal);
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+    const PAGE_PARAMS = new URLSearchParams(window.location.search);
+    const TEST_AVATAR_URL = PAGE_PARAMS.get('avatar_url');
+
     const ROOM_W = 14, ROOM_H = 6, ROOM_D = 14;
 
     let scene, camera, renderer, controls;
@@ -241,6 +244,12 @@ scene.<span class="fn">add</span>(portal);
       buildPortal();
       buildPlayer();
       setupLighting();
+
+      const hudEl = document.getElementById('hud');
+      if (hudEl && TEST_AVATAR_URL) {
+        const short = TEST_AVATAR_URL.length > 48 ? TEST_AVATAR_URL.slice(0, 24) + '…' + TEST_AVATAR_URL.slice(-20) : TEST_AVATAR_URL;
+        hudEl.textContent = 'Arrow keys to move | ~6 units: prompt · ~2 units: enter · avatar_url: ' + short;
+      }
 
       window.addEventListener('keydown', e => { if (e.code in keys) keys[e.code] = true; });
       window.addEventListener('keyup', e => { if (e.code in keys) keys[e.code] = false; });
@@ -487,6 +496,7 @@ scene.<span class="fn">add</span>(portal);
           const u = new URL('https://www.thevibemetaverse.com/');
           u.searchParams.set('portal', 'true');
           u.searchParams.set('ref', window.location.href);
+          if (TEST_AVATAR_URL) u.searchParams.set('avatar_url', TEST_AVATAR_URL);
           window.location.href = u.toString();
         }, 800);
       }
