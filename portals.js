@@ -40,6 +40,16 @@
       url.searchParams.set('portal', 'true');
       url.searchParams.set('ref', window.location.href);
 
+      // Auto-resolve avatar from the source game's registry entry if not explicit
+      if (!params.avatar_url) {
+        var hostname = window.location.hostname;
+        var sourceSlug = hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '').toLowerCase();
+        var sourcePortal = portals.find(function (p) { return p.slug === sourceSlug; });
+        if (sourcePortal && sourcePortal.avatarUrl) {
+          params.avatar_url = sourcePortal.avatarUrl;
+        }
+      }
+
       for (var key in params) {
         if (ALLOWED_PARAMS.indexOf(key) !== -1 || key === 'username' || key === 'avatar_url') {
           url.searchParams.set(key, params[key]);

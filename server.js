@@ -28,6 +28,8 @@ const MIME = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
+  '.glb': 'model/gltf-binary',
+  '.gltf': 'model/gltf+json',
 };
 
 // ── Portals from PORTALS/ directory ──
@@ -155,6 +157,7 @@ async function createRegistrationPR(slug, portalData) {
     `| **Title** | ${portalData.title} |`,
     `| **Description** | ${portalData.description || '_(none)_'} |`,
     `| **Portal Image** | ${portalData.portalImageUrl || '_(none)_'} |`,
+    `| **Avatar Model** | ${portalData.avatarUrl || '_(none)_'} |`,
     '',
     '_Auto-submitted by the Vibe Portals embed SDK._',
   ].join('\n');
@@ -256,6 +259,7 @@ const server = http.createServer((req, res) => {
           title: data.title || slug,
           description: data.description || '',
           portalImageUrl: data.portalImageUrl || '',
+          avatarUrl: data.avatarUrl || '',
           registeredAt: new Date().toISOString(),
         };
 
