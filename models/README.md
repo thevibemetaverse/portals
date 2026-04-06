@@ -16,3 +16,12 @@ Models are served at:
 ```
 https://portal.thevibemetaverse.com/models/<filename>.glb
 ```
+
+## Attribution (CC)
+
+Third-party models hosted here retain their Sketchfab / Creative Commons licenses. Source pages:
+
+| File | Sketchfab |
+|------|-----------|
+| `metaverse-explorer.glb` | [Mark Zuckerberg Running](https://sketchfab.com/3d-models/mark-zuckerberg-running-446d67d2ac314a70a8d455bfc7f804e6) |
+| `doomba.glb` | [Roomba](https://sketchfab.com/3d-models/roomba-16509583bde6415a80734c2407c31956) |
