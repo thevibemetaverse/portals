@@ -93,7 +93,8 @@ if (avatarUrl) {
   });
 }
 
-// In the render loop:
+// In the render loop (delta = clock.getDelta() from a THREE.Clock):
+const delta = clock.getDelta();
 if (avatarMixer) avatarMixer.update(delta);
 ```
 
