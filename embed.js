@@ -17,6 +17,15 @@ const API_BASE = new URL('.', import.meta.url).href.replace(/\/$/, '');
   } catch {}
 })();
 
+function slugFromOrigin(origin) {
+  try {
+    const hostname = new URL(origin).hostname;
+    return hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '').toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
 let _portalsCache = null;
 async function loadPortals() {
   if (_portalsCache) return _portalsCache;
@@ -96,11 +105,18 @@ export function createVibePortal(opts) {
       // Hub first; the hub scene then links to the metaverse (see portals/index.html).
       const destUrl = portal ? portal.url : 'https://portal.thevibemetaverse.com';
 
+      // Use the source game's avatar from the registry if no explicit avatar was provided.
+      // This is the key mechanic: each game declares its avatarUrl in the registry,
+      // and that model travels with the player through portals.
+      const sourceSlug = slugFromOrigin(window.location.origin);
+      const sourcePortal = portals.find(function (p) { return p.slug === sourceSlug; });
+      const resolvedAvatar = avatar || (sourcePortal && sourcePortal.avatarUrl) || null;
+
       const url = new URL(destUrl);
       url.searchParams.set('portal', 'true');
       url.searchParams.set('ref', window.location.href);
       if (username) url.searchParams.set('username', username);
-      if (avatar) url.searchParams.set('avatar_url', avatar);
+      if (resolvedAvatar) url.searchParams.set('avatar_url', resolvedAvatar);
 
       window.location.href = url.toString();
     } catch (err) {
