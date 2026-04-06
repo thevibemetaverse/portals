@@ -62,7 +62,7 @@ When a player arrives from another game, the URL has query params with their inf
 Read the avatar URL and load their 3D model:
 
 ```js
-import { Box3, AnimationMixer } from 'three';
+import { Box3, AnimationMixer, Clock } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -93,7 +93,10 @@ if (avatarUrl) {
   });
 }
 
-// In the render loop (delta = clock.getDelta() from a THREE.Clock):
+// Near the top of your setup code:
+const clock = new Clock();
+
+// In the render loop:
 const delta = clock.getDelta();
 if (avatarMixer) avatarMixer.update(delta);
 ```
