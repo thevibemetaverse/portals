@@ -193,6 +193,7 @@
   <div id="avatar-picker" role="toolbar" aria-label="Avatar examples">
     <button type="button" data-avatar="fox" title="Fox" aria-label="Fox">🦊</button>
     <button type="button" data-avatar="duck" title="Duck" aria-label="Duck">🦆</button>
+    <button type="button" data-avatar="explorer" title="Metaverse explorer" aria-label="Metaverse explorer">🧭</button>
     <button type="button" data-avatar="cube" title="Cube placeholder" aria-label="Cube placeholder">🧊</button>
   </div>
   <div id="hud">Arrow keys to move | ~6 units: prompt · ~2 units: enter</div>
@@ -249,6 +250,7 @@ scene.<span class="fn">add</span>(portal);
       'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Fox/glTF-Binary/Fox.glb';
     const DUCK_GLB =
       'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Duck/glTF-Binary/Duck.glb';
+    const EXPLORER_GLB = new URL('/models/metaverse-explorer.glb', window.location.origin).href;
 
     let currentAvatarUrl = new URLSearchParams(window.location.search).get('avatar_url');
 
@@ -531,6 +533,10 @@ scene.<span class="fn">add</span>(portal);
         if (kind === 'cube') active = !currentAvatarUrl;
         else if (kind === 'fox') active = currentAvatarUrl === FOX_GLB;
         else if (kind === 'duck') active = currentAvatarUrl === DUCK_GLB;
+        else if (kind === 'explorer')
+          active =
+            currentAvatarUrl === EXPLORER_GLB ||
+            (currentAvatarUrl && currentAvatarUrl.endsWith('/models/metaverse-explorer.glb'));
         btn.classList.toggle('active', active);
       });
     }
@@ -571,6 +577,7 @@ scene.<span class="fn">add</span>(portal);
           if (kind === 'cube') setAvatarSelection(null);
           else if (kind === 'fox') setAvatarSelection(FOX_GLB);
           else if (kind === 'duck') setAvatarSelection(DUCK_GLB);
+          else if (kind === 'explorer') setAvatarSelection(EXPLORER_GLB);
         });
       });
       syncPickerActive();
