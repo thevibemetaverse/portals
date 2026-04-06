@@ -17,7 +17,106 @@ Every game that joins the network gets a portal inside every other game. More ga
 
 ## Add a portal to your game
 
-### Option 1: The embed (fastest)
+### Option 1: Copy this prompt into your AI agent
+
+Copy the prompt below into **Cursor**, **Claude Code**, or any AI coding agent. It's self-contained -- no need to clone the portals repo.
+
+````
+Connect my Three.js game to the Vibe Metaverse portal network.
+This adds a 3D portal players can walk through to travel to other games,
+and handles players arriving from other games with their avatars.
+
+## 1. Add the portal
+
+Find where my Three.js scene and camera are initialized. Add the portal:
+
+```js
+import { createVibePortal } from 'https://portal.thevibemetaverse.com/embed.js';
+
+const portal = createVibePortal({
+  scene,
+  camera,
+  avatar: 'https://portal.thevibemetaverse.com/models/MY_AVATAR.glb', // optional: my game's 3D avatar
+});
+scene.add(portal);
+```
+
+Replace MY_AVATAR.glb with my game's avatar model URL (any public .glb works),
+or remove the avatar line if I don't have one yet.
+Position the portal somewhere visible: portal.position.set(x, y, z).
+The embed auto-registers my game with the network (no signup needed).
+
+## 2. Update the render loop
+
+In the animation/render loop, add this so the portal detects when the player is nearby:
+
+```js
+portal.update(player.position);
+```
+
+Use whatever variable represents the player or camera position.
+
+## 3. Handle arriving players
+
+When a player arrives from another game, the URL has query params with their info.
+Read them to show their avatar:
+
+```js
+const params = new URLSearchParams(window.location.search);
+const cameFromPortal = params.get('portal') === 'true';
+const avatarUrl = params.get('avatar_url');
+const username = params.get('username');
+```
+
+If avatarUrl is present, load the arriving player's 3D model:
+
+```js
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+if (avatarUrl) {
+  const loader = new GLTFLoader();
+  loader.load(avatarUrl, (gltf) => {
+    const model = gltf.scene;
+
+    // Scale to ~1.2 units tall
+    const box = new THREE.Box3().setFromObject(model);
+    const height = box.max.y - box.min.y;
+    if (height > 0) {
+      const s = 1.2 / height;
+      model.scale.set(s, s, s);
+    }
+
+    // Play idle animation if the model has one
+    if (gltf.animations.length > 0) {
+      const mixer = new THREE.AnimationMixer(model);
+      mixer.clipAction(gltf.animations[0]).play();
+      // Call mixer.update(delta) in the render loop
+    }
+
+    scene.add(model);
+  });
+}
+```
+
+The return portal is handled automatically -- if `ref` is in the URL,
+a return portal spawns so the player can go back.
+
+## createVibePortal options reference
+
+| Option          | Default                  | Description                              |
+|-----------------|--------------------------|------------------------------------------|
+| scene           | (required)               | Three.js scene                           |
+| camera          | (required)               | Three.js camera                          |
+| avatar          | null                     | URL to my game's .glb avatar model       |
+| label           | 'The Vibe Metaverse'     | Text on the portal arch                  |
+| scale           | 1                        | Size multiplier                          |
+| username        | null                     | Player's display name                    |
+| game            | 'the-vibe-metaverse'     | Target game slug                         |
+| proximityDist   | 6                        | Distance to show prompt                  |
+| enterDist       | 2                        | Distance to trigger navigation           |
+````
+
+### Option 2: The embed (manual)
 
 ```js
 import { createVibePortal } from 'https://portal.thevibemetaverse.com/embed.js';
@@ -30,33 +129,6 @@ portal.update(player.position);
 ```
 
 That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
-
-### Option 2: Let your AI agent do it
-
-Copy this prompt into **Cursor**, **Claude Code**, or any AI coding agent:
-
-```
-Add a portal to my Three.js game that connects it to the Vibe Metaverse portal network.
-
-1. Find where my Three.js scene and camera are initialized.
-2. Add this import to that file:
-   import { createVibePortal } from 'https://portal.thevibemetaverse.com/embed.js';
-3. After the scene is set up, create the portal:
-   const portal = createVibePortal({ scene, camera });
-   scene.add(portal);
-4. In the render/animation loop, add: portal.update(player.position);
-   Use whatever variable represents the player or camera position.
-5. Position the portal somewhere that makes sense using portal.position.set(x, y, z).
-
-The portal auto-registers my game with the network. When players walk into it they
-travel to other games. When players arrive from the network, a return portal appears
-automatically.
-
-Options I can customize: label (arch text), scale (size), proximityDist (default 6),
-enterDist (default 2), username, avatar.
-```
-
-The agent will find the right file, the right variables, and the right spot in your render loop.
 
 ### Option 3: Submit a PR (slow)
 
