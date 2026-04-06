@@ -59,19 +59,16 @@ Use whatever variable represents the player or camera position.
 ## 3. Handle arriving players
 
 When a player arrives from another game, the URL has query params with their info.
-Read them to show their avatar:
+Read the avatar URL and load their 3D model:
 
 ```js
-const params = new URLSearchParams(window.location.search);
-const cameFromPortal = params.get('portal') === 'true';
-const avatarUrl = params.get('avatar_url');
-const username = params.get('username');
-```
-
-If avatarUrl is present, load the arriving player's 3D model:
-
-```js
+import { Box3, AnimationMixer, Clock } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const params = new URLSearchParams(window.location.search);
+const avatarUrl = params.get('avatar_url');
+
+let avatarMixer = null;
 
 if (avatarUrl) {
   const loader = new GLTFLoader();
@@ -79,7 +76,7 @@ if (avatarUrl) {
     const model = gltf.scene;
 
     // Scale to ~1.2 units tall
-    const box = new THREE.Box3().setFromObject(model);
+    const box = new Box3().setFromObject(model);
     const height = box.max.y - box.min.y;
     if (height > 0) {
       const s = 1.2 / height;
@@ -88,14 +85,20 @@ if (avatarUrl) {
 
     // Play idle animation if the model has one
     if (gltf.animations.length > 0) {
-      const mixer = new THREE.AnimationMixer(model);
-      mixer.clipAction(gltf.animations[0]).play();
-      // Call mixer.update(delta) in the render loop
+      avatarMixer = new AnimationMixer(model);
+      avatarMixer.clipAction(gltf.animations[0]).play();
     }
 
     scene.add(model);
   });
 }
+
+// Near the top of your setup code:
+const clock = new Clock();
+
+// In the render loop:
+const delta = clock.getDelta();
+if (avatarMixer) avatarMixer.update(delta);
 ```
 
 The return portal is handled automatically -- if `ref` is in the URL,
