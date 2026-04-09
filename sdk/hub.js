@@ -29,6 +29,7 @@ export function spawnPortalRow(scene, entries, options = {}) {
     const group = createPortalMesh({
       label: portalData.title || portalData.slug,
       name: 'portal-' + portalData.slug,
+      imageUrl: portalData.portalImageUrl || undefined,
     });
     group.position.set(x, 0, rowZ);
     group.lookAt(0, 0, 0);
