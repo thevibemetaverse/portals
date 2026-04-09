@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "slug": "krunker-io",
+    "url": "https://krunker.io/",
+    "title": "Krunker.io",
+    "description": "Fast-paced browser FPS — no account needed, mobile-friendly, instant load, huge playerbase.",
+    "portalImageUrl": "images/krunker-io.jpg",
+    "avatarUrl": "",
+    "registeredAt": "2026-04-08T00:00:00.000Z"
+  },
+  {
+    "slug": "motel-floorsjs-com",
+    "url": "https://motel.floorsjs.com",
+    "title": "LeBeau Motel",
+    "description": "",
+    "portalImageUrl": "images/motel-floor.jpg",
+    "avatarUrl": "",
+    "registeredAt": "2026-04-08T18:35:53.239Z"
+  },
+  {
+    "slug": "synthwave-grid-bounce",
+    "url": "https://synthwave-grid-bounc-qasj.bolt.host/",
+    "title": "Synthwave Grid Bounce",
+    "description": "Retro synthwave arcade game — bounce a glowing ball on a neon grid. Keyboard or swipe controls.",
+    "portalImageUrl": "images/synthwave-grid-bounce.jpg",
+    "avatarUrl": "",
+    "registeredAt": "2026-04-09T00:00:00.000Z"
+  }
+]
