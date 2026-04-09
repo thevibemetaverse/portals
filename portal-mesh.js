@@ -23,7 +23,9 @@ const RETURN_COLOR2 = 0xff9e64;
  * @param {string} [opts.name] — `group.name` (default `"vibe-portal"`)
  * @param {number} [opts.scale] — Uniform scale multiplier (default 1)
  * @param {string} [opts.origin] — "center" (default) or "bottom" — bottom places the portal base at y=0
- * @returns {THREE.Group} `userData.portalMat` is the ShaderMaterial; use `disposePortalMesh(group)` when done
+ * @param {THREE.Object3D} [opts.visual] — Custom Object3D to use instead of the default shader portal
+ * @param {string} [opts.imageUrl] — URL to an image displayed inside the portal circle
+ * @returns {THREE.Group} `userData.portalMat` is the ShaderMaterial (null when using custom visual); use `disposePortalMesh(group)` when done
  */
 export function createPortalMesh(opts = {}) {
   const {
@@ -34,6 +36,8 @@ export function createPortalMesh(opts = {}) {
     name = 'vibe-portal',
     scale = 1,
     origin = 'center',
+    visual,
+    imageUrl,
   } = opts;
 
   const color1 = color1Opt
@@ -47,79 +51,113 @@ export function createPortalMesh(opts = {}) {
   group.name = name;
 
   const portalRadius = 1.45 * scale;
-  const portalGeo = new THREE.CircleGeometry(portalRadius, 64);
 
   // y offset: "center" keeps original 1.65 behavior, "bottom" places portal base at y=0
   const portalY = origin === 'bottom' ? portalRadius : 1.65 * scale;
-  const portalMat = new THREE.ShaderMaterial({
-    uniforms: {
-      time: { value: 0 },
-      color1: { value: color1 },
-      color2: { value: color2 },
-    },
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float time;
-      uniform vec3 color1;
-      uniform vec3 color2;
-      varying vec2 vUv;
 
-      void main() {
-        vec2 p = (vUv - 0.5) * 2.0;
-        float r = length(p);
-        if (r > 1.001) discard;
+  let portalMat = null;
+  let portalGeo = null;
 
-        float angle = atan(p.y, p.x);
-        float pulse = sin(time * 2.2) * 0.12 + 0.88;
+  if (visual) {
+    // Custom visual — consumer provides their own Object3D
+    const customVisual = visual;
+    customVisual.position.set(0, portalY, 0);
+    group.add(customVisual);
+  } else {
+    // Default shader portal
+    portalGeo = new THREE.CircleGeometry(portalRadius, 64);
+    portalMat = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        color1: { value: color1 },
+        color2: { value: color2 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float time;
+        uniform vec3 color1;
+        uniform vec3 color2;
+        varying vec2 vUv;
 
-        // Dark "depth" void in the center (reads as a hole, not a flat sticker)
-        float voidMask = smoothstep(0.62, 0.08, r);
-        float voidNoise = sin(angle * 5.0 + r * 18.0 - time * 1.5) * 0.5 + 0.5;
-        vec3 voidCol = mix(color1 * 0.06, color2 * 0.04, voidNoise * voidMask);
-        voidCol *= smoothstep(0.55, 0.0, r);
+        void main() {
+          vec2 p = (vUv - 0.5) * 2.0;
+          float r = length(p);
+          if (r > 1.001) discard;
 
-        // Bright energy ring (main portal rim)
-        float ringBand = smoothstep(0.78, 0.62, r) * smoothstep(0.38, 0.58, r);
-        float swirl = sin(angle * 16.0 + r * 22.0 - time * 3.5) * 0.5 + 0.5;
-        float ripple = sin(r * 40.0 - time * 6.0) * 0.5 + 0.5;
-        vec3 ringCol = mix(color1, color2, swirl * ripple);
-        ringCol *= (1.1 + 0.6 * pulse);
+          float angle = atan(p.y, p.x);
+          float pulse = sin(time * 2.2) * 0.12 + 0.88;
 
-        // Hot inner edge of the ring
-        float innerEdge = smoothstep(0.58, 0.48, r) * smoothstep(0.32, 0.5, r);
-        vec3 edgeGlow = mix(color1, vec3(1.0), 0.35) * innerEdge * (0.9 + 0.4 * sin(time * 4.0));
+          // Dark "depth" void in the center (reads as a hole, not a flat sticker)
+          float voidMask = smoothstep(0.62, 0.08, r);
+          float voidNoise = sin(angle * 5.0 + r * 18.0 - time * 1.5) * 0.5 + 0.5;
+          vec3 voidCol = mix(color1 * 0.06, color2 * 0.04, voidNoise * voidMask);
+          voidCol *= smoothstep(0.55, 0.0, r);
 
-        // Soft outer halo
-        float outer = smoothstep(1.0, 0.82, r) * smoothstep(0.72, 0.98, r);
-        vec3 halo = color1 * outer * 2.2 * pulse;
+          // Bright energy ring (main portal rim)
+          float ringBand = smoothstep(0.78, 0.62, r) * smoothstep(0.38, 0.58, r);
+          float swirl = sin(angle * 16.0 + r * 22.0 - time * 3.5) * 0.5 + 0.5;
+          float ripple = sin(r * 40.0 - time * 6.0) * 0.5 + 0.5;
+          vec3 ringCol = mix(color1, color2, swirl * ripple);
+          ringCol *= (1.1 + 0.6 * pulse);
 
-        vec3 col = voidCol + ringCol * ringBand + edgeGlow + halo;
+          // Hot inner edge of the ring
+          float innerEdge = smoothstep(0.58, 0.48, r) * smoothstep(0.32, 0.5, r);
+          vec3 edgeGlow = mix(color1, vec3(1.0), 0.35) * innerEdge * (0.9 + 0.4 * sin(time * 4.0));
 
-        float alpha =
-          voidMask * 0.92 * smoothstep(0.65, 0.0, r) +
-          ringBand * 0.98 +
-          innerEdge * 0.95 +
-          outer * 0.75;
-        alpha = clamp(alpha * pulse, 0.0, 0.98);
+          // Soft outer halo
+          float outer = smoothstep(1.0, 0.82, r) * smoothstep(0.72, 0.98, r);
+          vec3 halo = color1 * outer * 2.2 * pulse;
 
-        gl_FragColor = vec4(col, alpha);
-      }
-    `,
-    transparent: true,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const portalSurface = new THREE.Mesh(portalGeo, portalMat);
-  portalSurface.position.set(0, portalY, 0);
-  portalSurface.renderOrder = 1;
-  group.add(portalSurface);
+          vec3 col = voidCol + ringCol * ringBand + edgeGlow + halo;
+
+          float alpha =
+            voidMask * 0.92 * smoothstep(0.65, 0.0, r) +
+            ringBand * 0.98 +
+            innerEdge * 0.95 +
+            outer * 0.75;
+          alpha = clamp(alpha * pulse, 0.0, 0.98);
+
+          gl_FragColor = vec4(col, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const portalSurface = new THREE.Mesh(portalGeo, portalMat);
+    portalSurface.position.set(0, portalY, 0);
+    portalSurface.renderOrder = 1;
+    group.add(portalSurface);
+  }
+
+  // Portal image displayed inside the circle
+  let imgTex = null;
+  let imgMat = null;
+  let imgGeo = null;
+  if (imageUrl) {
+    const loader = new THREE.TextureLoader();
+    imgTex = loader.load(imageUrl);
+    imgTex.colorSpace = THREE.SRGBColorSpace;
+    imgGeo = new THREE.CircleGeometry(portalRadius * 0.55, 64);
+    imgMat = new THREE.MeshBasicMaterial({
+      map: imgTex,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const imgMesh = new THREE.Mesh(imgGeo, imgMat);
+    imgMesh.position.set(0, portalY, 0.01);
+    imgMesh.renderOrder = 2;
+    group.add(imgMesh);
+  }
 
   const light1 = new THREE.PointLight(color1, 3.5, 10 * scale);
   light1.position.set(0, portalY, 0.9 * scale);
@@ -153,6 +191,9 @@ export function createPortalMesh(opts = {}) {
     portalMat,
     tex,
     spriteMat,
+    imgTex,
+    imgMat,
+    imgGeo,
   };
 
   return group;
@@ -162,9 +203,12 @@ export function createPortalMesh(opts = {}) {
 export function disposePortalMesh(group) {
   const r = group.userData._portalResources;
   if (!r) return;
-  r.portalGeo.dispose();
-  r.portalMat.dispose();
+  if (r.portalGeo) r.portalGeo.dispose();
+  if (r.portalMat) r.portalMat.dispose();
   r.tex.dispose();
   r.spriteMat.dispose();
+  if (r.imgTex) r.imgTex.dispose();
+  if (r.imgMat) r.imgMat.dispose();
+  if (r.imgGeo) r.imgGeo.dispose();
   delete group.userData._portalResources;
 }
