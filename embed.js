@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createPortalMesh, disposePortalMesh } from './portal-mesh.js';
+import { createPortalMesh, disposePortalMesh, updatePortalTime } from './portal-mesh.js';
 
 const API_BASE = new URL('.', import.meta.url).href.replace(/\/$/, '');
 
@@ -52,7 +52,6 @@ export function createVibePortal(opts) {
   opts = opts || {};
   const game = opts.game || 'the-vibe-metaverse';
   const username = opts.username || null;
-  const avatar = opts.avatar || null;
   const scene = opts.scene || null;
   const camera = opts.camera || null;
   const portalScale = opts.scale || 1;
@@ -60,16 +59,17 @@ export function createVibePortal(opts) {
   const ref = getRef();
   const isReturn = !!ref;
 
-  const label = isReturn ? 'Return' : (opts.label || 'The Vibe Metaverse');
+  const label = isReturn
+    ? 'Return'
+    : (opts.label !== undefined ? opts.label : 'The Vibe Metaverse');
   const group = createPortalMesh({
     label,
     isReturn,
+    thumbnail: opts.thumbnail || null,
     name: 'vibe-portal',
     scale: portalScale,
     origin: opts.origin || 'center',
   });
-  const portalMat = group.userData.portalMat;
-
   // Interaction state
   let navigating = false;
   let promptEl = null;
@@ -110,11 +110,18 @@ export function createVibePortal(opts) {
       // and that model travels with the player through portals.
       const sourceSlug = slugFromOrigin(window.location.origin);
       const sourcePortal = portals.find(function (p) { return p.slug === sourceSlug; });
-      const resolvedAvatar = avatar || (sourcePortal && sourcePortal.avatarUrl) || null;
+      const explicit =
+        typeof opts.avatar === 'function' ? opts.avatar() : opts.avatar;
+      const resolvedAvatar =
+        explicit || (sourcePortal && sourcePortal.avatarUrl) || null;
 
       const url = new URL(destUrl);
       url.searchParams.set('portal', 'true');
       url.searchParams.set('ref', window.location.href);
+      url.searchParams.set(
+        'from_portal',
+        document.title || document.location.hostname || ''
+      );
       if (username) url.searchParams.set('username', username);
       if (resolvedAvatar) url.searchParams.set('avatar_url', resolvedAvatar);
 
@@ -129,7 +136,7 @@ export function createVibePortal(opts) {
   group.update = function (playerPosition) {
     // Animate shader
     const elapsed = clock.getElapsedTime();
-    portalMat.uniforms.time.value = elapsed;
+    updatePortalTime(group, elapsed);
 
     if (!playerPosition) return;
 

@@ -32,6 +32,7 @@ export async function fetchPortalsRegistry(registryUrlOrBase) {
  * @param {string | null} [options.username]
  * @param {string | null} [options.avatarUrl] — Explicit avatar; overrides registry lookup
  * @param {{ avatarUrl?: string } | null} [options.sourcePortal] — Source game's registry entry
+ * @param {string} [options.fromPortal] — Shown on the destination return portal (e.g. document.title)
  */
 export function buildPortalUrl(portal, options = {}) {
   if (typeof window === 'undefined') {
@@ -47,6 +48,8 @@ export function buildPortalUrl(portal, options = {}) {
     || (options.sourcePortal && options.sourcePortal.avatarUrl)
     || null;
   if (avatarUrl) url.searchParams.set('avatar_url', avatarUrl);
+
+  if (options.fromPortal) url.searchParams.set('from_portal', options.fromPortal);
 
   return url.toString();
 }
