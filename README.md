@@ -17,6 +17,13 @@ Every game that joins the network gets a portal inside every other game. More ga
 
 ## Add a portal to your game
 
+Getting connected is **two separate steps**:
+
+1. **Add the embed to your game** (Option 1 or Option 2 below) — this gives you a walk-in portal from your game *out* to the network.
+2. **Register your game in the portal registry** (Option 3 below) — this is a *separate* pull request against this repo that puts your game inside every *other* game on the network.
+
+You can do step 1 without step 2 (you'll have outbound/return portals only). To get the full flywheel — other games showing portals to yours — you need both.
+
 ### Option 1: Copy this prompt into your AI agent
 
 Copy the prompt below into **Cursor**, **Claude Code**, or any AI coding agent. It's self-contained -- no need to clone the portals repo.
@@ -47,8 +54,8 @@ Position the portal somewhere visible: portal.position.set(x, y, z).
 
 The embed alone gives me a working outbound portal and auto-spawns a return
 portal when players arrive with a `ref` query param. To make my game show up
-inside *other* games on the network, I need to add a JSON file to the
-`PORTALS/` directory of the portals repo and open a PR (see Option 3 below).
+inside *other* games on the network, step 4 below opens a PR on the portals
+repo to register it -- this is a *separate* step from adding the embed.
 
 ## 2. Update the render loop
 
@@ -108,6 +115,50 @@ if (avatarMixer) avatarMixer.update(delta);
 The return portal is handled automatically -- if `ref` is in the URL,
 a return portal spawns so the player can go back.
 
+## 4. Register my game in the Vibe Metaverse portal network
+
+This is a **separate step** from adding the embed. Without it, my game
+has outbound and return portals but won't appear inside any other game on
+the network. To register, open a pull request on the portals repo that
+adds a JSON file describing my game.
+
+If the `gh` CLI is available, do this automatically end-to-end. Replace
+`MY_GAME` / `MY_DOMAIN` / etc with my actual values:
+
+```bash
+# 1. Fork and clone the portals repo into a sibling directory
+gh repo fork thevibemetaverse/portals --clone=true -- ../portals
+cd ../portals
+
+# 2. Create a new branch
+git checkout -b add-MY_GAME-portal
+
+# 3. Add the registry file (name it after my domain, dots -> dashes)
+cat > PORTALS/MY_DOMAIN-com.json <<'JSON'
+{
+  "url": "https://MY_DOMAIN.com",
+  "title": "MY_GAME",
+  "description": "A short description of my game.",
+  "portalImageUrl": "https://MY_DOMAIN.com/thumbnail.png",
+  "avatarUrl": "https://MY_DOMAIN.com/avatar.glb"
+}
+JSON
+
+# 4. Commit and open the PR
+git add PORTALS/MY_DOMAIN-com.json
+git commit -m "Add MY_GAME portal"
+git push -u origin add-MY_GAME-portal
+gh pr create --title "Add MY_GAME portal" \
+  --body "Registers MY_GAME in the Vibe Metaverse portal network."
+```
+
+`portalImageUrl` and `avatarUrl` are optional -- omit them if I don't
+have a thumbnail or avatar yet. The filename must use my domain with
+dots replaced by dashes (e.g. `my-awesome-game-com.json`).
+
+If the `gh` CLI isn't available, tell me the exact steps to do it
+manually through the GitHub web UI instead.
+
 ## createVibePortal options reference
 
 | Option          | Default                  | Description                              |
@@ -138,9 +189,11 @@ portal.update(player.position);
 
 That's it. A glowing 3D portal appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
 
-### Option 3: Submit a PR
+### Option 3: Register your game in the network *(separate step from Options 1 & 2)*
 
-Want to add your game to the metaverse? Open a pull request and once it's merged, a portal to your game will appear on [thevibemetaverse.com](https://thevibemetaverse.com) and across the entire portal network -- meaning players from every other connected game can discover and visit yours.
+Options 1 and 2 give you the embed -- a walk-in portal from *your* game to the network. This step is different: it puts *your* game inside every *other* game on the network by adding a JSON entry to the `PORTALS/` directory of this repo and opening a pull request.
+
+You can skip this if you only want the outbound/return portal behavior, but you need it to get the full flywheel: once it's merged, a portal to your game will appear on [thevibemetaverse.com](https://thevibemetaverse.com) and across the entire portal network -- meaning players from every other connected game can discover and visit yours.
 
 **Step-by-step:**
 
