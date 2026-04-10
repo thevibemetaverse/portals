@@ -133,24 +133,38 @@ portal.update(player.position);
 
 That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
 
-### Option 3: Submit a PR (slow)
+### Option 3: Submit a PR
 
-If you'd rather register without adding the embed yet, just add a JSON file:
+Want to add your game to the metaverse? Open a pull request and once it's merged, a portal to your game will appear on [thevibemetaverse.com](https://thevibemetaverse.com) and across the entire portal network -- meaning players from every other connected game can discover and visit yours.
 
-1. Fork this repo
-2. Copy `PORTALS/__TEMPLATE__.json` to `PORTALS/your-game-domain-com.json`
-3. Fill in your details:
+**Step-by-step:**
+
+1. **Fork** this repo
+2. **Copy** the template: `PORTALS/__TEMPLATE__.json` -> `PORTALS/your-game-domain-com.json`
+   - Name the file after your game's domain with dashes instead of dots (e.g., `my-awesome-game-com.json`)
+3. **Fill in your game's details:**
 
 ```json
 {
   "url": "https://your-game.com",
   "title": "Your Game",
-  "description": "A short description of your game.",
-  "portalImageUrl": "https://url-to-a-thumbnail.png"
+  "description": "A short description of your game or experience.",
+  "portalImageUrl": "https://url-to-a-thumbnail.png",
+  "avatarUrl": "https://url-to-your-avatar.glb"
 }
 ```
 
-4. Open a PR. Once merged, a portal to your game appears across the network.
+| Field | Required | Description |
+|-------|----------|-------------|
+| `url` | Yes | The URL to your game -- this is where the portal sends players |
+| `title` | Yes | Your game's display name shown on the portal |
+| `description` | No | A short description so players know what to expect |
+| `portalImageUrl` | No | A thumbnail image displayed inside the portal circle |
+| `avatarUrl` | No | A `.glb` 3D model representing your game's avatar in the metaverse |
+
+4. **Open a PR**. Once a maintainer merges it, a portal to your game appears on [thevibemetaverse.com](https://thevibemetaverse.com) and inside every other game in the network.
+
+That's it -- no accounts, no sign-ups, no SDK required. Just a JSON file and a PR.
 
 ### Option 4: Auto-registration
 
