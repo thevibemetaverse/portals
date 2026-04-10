@@ -34,5 +34,14 @@
     "portalImageUrl": "",
     "avatarUrl": "",
     "registeredAt": "2026-04-09T00:00:00.000Z"
+  },
+  {
+    "slug": "flight-tarmizi-id",
+    "url": "https://flight.tarmizi.id/",
+    "title": "Web Flight Simulator",
+    "description": "Browser-based 3D combat flight simulator — pilot an aircraft, engage in aerial dogfights, and complete missions.",
+    "portalImageUrl": "",
+    "avatarUrl": "",
+    "registeredAt": "2026-04-10T00:00:00.000Z"
   }
 ]
