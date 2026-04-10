@@ -66,6 +66,7 @@ export function createVibePortal(opts) {
     isReturn,
     name: 'vibe-portal',
     scale: portalScale,
+    labelScale: opts.labelScale || 1,
     origin: opts.origin || 'center',
   });
   const portalMat = group.userData.portalMat;

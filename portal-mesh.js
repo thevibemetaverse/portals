@@ -22,6 +22,7 @@ const RETURN_COLOR2 = 0xff9e64;
  * @param {THREE.Color} [opts.color2] — Override secondary swirl (optional)
  * @param {string} [opts.name] — `group.name` (default `"vibe-portal"`)
  * @param {number} [opts.scale] — Uniform scale multiplier (default 1)
+ * @param {number} [opts.labelScale] — Label sprite size multiplier, independent of `scale` (default 1)
  * @param {string} [opts.origin] — "center" (default) or "bottom" — bottom places the portal base at y=0
  * @param {THREE.Object3D} [opts.visual] — Custom Object3D to use instead of the default shader portal
  * @param {string} [opts.imageUrl] — URL to an image displayed inside the portal circle
@@ -35,6 +36,7 @@ export function createPortalMesh(opts = {}) {
     color2: color2Opt,
     name = 'vibe-portal',
     scale = 1,
+    labelScale = 1,
     origin = 'center',
     visual,
     imageUrl,
@@ -188,8 +190,10 @@ export function createPortalMesh(opts = {}) {
   const tex = new THREE.CanvasTexture(canvas);
   const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.position.set(0, portalY + portalRadius + 0.55 * scale, 0);
-  sprite.scale.set(20 * scale, 2.5 * scale, 1);
+  const spriteHeight = 2.5 * scale * labelScale;
+  // Keep the sprite bottom 0.55 units above the portal rim regardless of labelScale
+  sprite.position.set(0, portalY + portalRadius + 0.55 * scale + spriteHeight / 2, 0);
+  sprite.scale.set(20 * scale * labelScale, spriteHeight, 1);
   group.add(sprite);
 
   group.userData.portalMat = portalMat;
