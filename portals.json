@@ -43,5 +43,14 @@
     "portalImageUrl": "",
     "avatarUrl": "",
     "registeredAt": "2026-04-10T00:00:00.000Z"
+  },
+  {
+    "slug": "deatharena-fun",
+    "url": "https://deatharena.fun/",
+    "title": "Death Arena",
+    "description": "Browser-based combat arena game — jump in and fight.",
+    "portalImageUrl": "",
+    "avatarUrl": "",
+    "registeredAt": "2026-04-10T00:00:00.000Z"
   }
 ]
