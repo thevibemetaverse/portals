@@ -44,7 +44,11 @@ scene.add(portal);
 Replace MY_AVATAR.glb with my game's avatar model URL (any public .glb works),
 or remove the avatar line if I don't have one yet.
 Position the portal somewhere visible: portal.position.set(x, y, z).
-The embed auto-registers my game with the network (no signup needed).
+
+The embed alone gives me a working outbound portal and auto-spawns a return
+portal when players arrive with a `ref` query param. To make my game show up
+inside *other* games on the network, I need to add a JSON file to the
+`PORTALS/` directory of the portals repo and open a PR (see Option 3 below).
 
 ## 2. Update the render loop
 
@@ -111,8 +115,9 @@ a return portal spawns so the player can go back.
 | scene           | (required)               | Three.js scene                           |
 | camera          | (required)               | Three.js camera                          |
 | avatar          | null                     | URL to my game's .glb avatar model       |
-| label           | 'The Vibe Metaverse'     | Text on the portal arch                  |
-| scale           | 1                        | Size multiplier                          |
+| label           | 'The Vibe Metaverse'     | Text shown above the portal              |
+| scale           | 1                        | Size multiplier for the portal ring      |
+| labelScale      | 1                        | Size multiplier for the label only       |
 | username        | null                     | Player's display name                    |
 | game            | 'the-vibe-metaverse'     | Target game slug                         |
 | proximityDist   | 6                        | Distance to show prompt                  |
@@ -131,7 +136,7 @@ scene.add(portal);
 portal.update(player.position);
 ```
 
-That's it. A glowing 3D portal arch appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
+That's it. A glowing 3D portal appears in your scene. When a player walks into it, they're transported to the network hub. When a player arrives *from* the network, a return portal spawns automatically.
 
 ### Option 3: Submit a PR
 
@@ -166,10 +171,6 @@ Want to add your game to the metaverse? Open a pull request and once it's merged
 
 That's it -- no accounts, no sign-ups, no SDK required. Just a JSON file and a PR.
 
-### Option 4: Auto-registration
-
-When you use the embed script, your game auto-registers with the portal server. A PR is created on this repo automatically -- no manual steps needed. Once a maintainer merges it, you're in.
-
 ---
 
 ## How the network works
@@ -185,11 +186,11 @@ Your Game                    Portal Network                    Other Games
                      return portal (automatic)
 ```
 
-1. You add the embed to your Three.js game
-2. The embed auto-registers your game with the portal server (creates a PR on this repo)
-3. Once merged, a portal to your game appears in the hub and across the network
+1. You add the embed to your Three.js game — this gives you a walk-in portal to the network
+2. You open a PR adding a JSON file for your game to the `PORTALS/` directory
+3. Once merged, a portal to your game appears in the hub and inside every other game on the network
 4. Players walk through portals to travel between games
-5. URL params (`portal`, `ref`, `username`, `avatar_url`) are passed through so games can handle arrivals
+5. URL params (`portal`, `ref`, `username`, `avatar_url`) are passed through so games can handle arrivals (the embed uses these automatically to spawn a return portal and carry the player's avatar)
 
 ---
 
@@ -202,15 +203,26 @@ createVibePortal({
   scene,                    // your Three.js scene (required)
   camera,                   // your Three.js camera (required)
   game: 'some-slug',        // target game slug (default: 'the-vibe-metaverse')
-  label: 'Enter Metaverse', // text shown on the portal arch
+  label: 'Enter Metaverse', // text shown above the portal
   username: 'player1',      // passed through to the destination game
   avatar: 'https://...',    // avatar URL passed through to the destination
-  scale: 1.5,               // portal size multiplier
+  scale: 1.5,               // portal ring size multiplier
+  labelScale: 0.4,          // shrink only the label (independent of scale)
   origin: 'center',         // spawn position hint
   proximityDist: 6,         // distance to show "entering..." prompt
   enterDist: 2,             // distance to trigger navigation
 });
 ```
+
+### Sizing the portal vs. the label
+
+`scale` resizes the whole portal uniformly -- ring, lights, and label together. If you just want a bigger or smaller **label** without touching the ring, use `labelScale` instead. The two multiply, so `scale: 2, labelScale: 0.5` gives you a double-size ring with a normal-size label.
+
+The label is anchored by its bottom edge, so it always sits just above the portal ring regardless of `labelScale` -- shrinking the label won't leave a floating gap, and growing it won't overlap the ring.
+
+### The in-game HUD prompt
+
+When a player walks within `proximityDist` of the portal, the embed shows a small status toast centered on the screen ("Entering The Vibe Metaverse..."). When they cross `enterDist`, it flips to "Entering..." and the page navigates. The HUD is a fixed-position DOM element (not a 3D object), lives on top of your canvas with `pointer-events: none`, and is removed automatically when you call `portal.dispose()`.
 
 ### Handling arrivals
 
@@ -307,7 +319,7 @@ If you want to improve the portal SDK, hub experience, or server:
 1. Fork and clone the repo
 2. `npm install && npm start`
 3. Open `http://localhost:3001` to see the hub
-4. Make changes and test with `test-game.html`
+4. Make changes and reload the hub to verify
 5. Open a PR
 
 ---
