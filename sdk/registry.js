@@ -23,6 +23,10 @@ export async function fetchPortalsRegistry(registryUrlOrBase) {
 /**
  * Build a destination URL with portal handoff query params (ref, username, avatar).
  *
+ * **Browser-only** — this function requires `window` and will throw in Node.js /
+ * SSR environments. Use `fetchPortalsRegistry` (which works in any JS runtime)
+ * to read registry data server-side, then build URLs yourself if needed.
+ *
  * If no explicit avatarUrl is provided, the source game's avatarUrl from the
  * registry is used (looked up via sourcePortal or the current origin).
  *
@@ -32,6 +36,7 @@ export async function fetchPortalsRegistry(registryUrlOrBase) {
  * @param {string | null} [options.username]
  * @param {string | null} [options.avatarUrl] — Explicit avatar; overrides registry lookup
  * @param {{ avatarUrl?: string } | null} [options.sourcePortal] — Source game's registry entry
+ * @throws {Error} If called outside a browser environment (no `window` global)
  */
 export function buildPortalUrl(portal, options = {}) {
   if (typeof window === 'undefined') {

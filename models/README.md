@@ -3,8 +3,9 @@
 Drop `.glb` files here to host them for the portal network.
 
 Each game can reference its avatar model in its `PORTALS/<slug>.json` entry
-using the `avatarUrl` field. When a player enters a portal, the destination
-game's avatar is automatically passed via the `avatar_url` query parameter.
+using the `avatarUrl` field. When a player enters a portal, the source
+game's avatar is automatically passed via the `avatar_url` query parameter
+so the destination game can render the player using their origin model.
 
 ## Naming convention
 

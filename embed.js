@@ -26,6 +26,8 @@ function slugFromOrigin(origin) {
   }
 }
 
+// Intentionally no TTL — the page reloads on portal navigation anyway.
+// Long-lived sessions will use stale data if the registry changes mid-session.
 let _portalsCache = null;
 async function loadPortals() {
   if (_portalsCache) return _portalsCache;
@@ -109,6 +111,11 @@ export function createVibePortal(opts) {
       // Use the source game's avatar from the registry if no explicit avatar was provided.
       // This is the key mechanic: each game declares its avatarUrl in the registry,
       // and that model travels with the player through portals.
+      //
+      // NOTE: avatar_url is forwarded as an opaque query parameter — the destination
+      // game is responsible for validating/sanitizing this URL before loading it as a
+      // 3D model. Any game on the network (or a crafted link) can pass an arbitrary
+      // avatar_url, so destination games should treat it as untrusted input.
       const sourceSlug = slugFromOrigin(window.location.origin);
       const sourcePortal = portals.find(function (p) { return p.slug === sourceSlug; });
       const resolvedAvatar = avatar || (sourcePortal && sourcePortal.avatarUrl) || null;
