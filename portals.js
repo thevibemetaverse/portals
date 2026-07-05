@@ -4,6 +4,8 @@
   const ALLOWED_PARAMS = ['portal', 'avatar_url', 'username', 'ref'];
 
   const Portals = {
+    // Intentionally no TTL — the page reloads on portal navigation anyway.
+    // Long-lived sessions will use stale data if the registry changes mid-session.
     _cache: null,
 
     async load() {
@@ -51,7 +53,7 @@
       }
 
       for (var key in params) {
-        if (ALLOWED_PARAMS.indexOf(key) !== -1 || key === 'username' || key === 'avatar_url') {
+        if (ALLOWED_PARAMS.indexOf(key) !== -1) {
           url.searchParams.set(key, params[key]);
         }
       }

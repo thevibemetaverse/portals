@@ -254,12 +254,22 @@ const server = http.createServer((req, res) => {
           return;
         }
 
+        // Validate avatarUrl: must be an https:// URL ending in .glb if provided.
+        // This value is persisted to disk and served to all clients via portals.json,
+        // so we reject anything that isn't a safe model URL.
+        const avatarUrl = data.avatarUrl || '';
+        if (avatarUrl && (!/^https:\/\/.+\.glb$/i.test(avatarUrl))) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'avatarUrl must be an https:// URL ending in .glb' }));
+          return;
+        }
+
         const portalData = {
           url,
           title: data.title || slug,
           description: data.description || '',
           portalImageUrl: data.portalImageUrl || '',
-          avatarUrl: data.avatarUrl || '',
+          avatarUrl,
           registeredAt: new Date().toISOString(),
         };
 
